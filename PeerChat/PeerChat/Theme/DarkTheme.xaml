@@ -1,0 +1,25 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:local="clr-namespace:PeerChat.Theme">
+    <!-- Backgrounds -->
+    <SolidColorBrush x:Key="BackgroundBrush"
+                     Color="#161b1f" />
+    <SolidColorBrush x:Key="SurfaceBrush"
+                     Color="#1d2830" />
+    <SolidColorBrush x:Key="CardBrush"
+                     Color="#304958" />
+
+    <!-- Primary -->
+    <SolidColorBrush x:Key="PrimaryBrush"
+                     Color="#4a7895" />
+    <SolidColorBrush x:Key="SecondaryBrush"
+                     Color="#6c92a8" />
+    <SolidColorBrush x:Key="AccentBrush"
+                     Color="#96b0bb" />
+
+    <!-- Text -->
+    <SolidColorBrush x:Key="TextPrimaryBrush"
+                     Color="#cdd7da" />
+    <SolidColorBrush x:Key="TextSecondaryBrush"
+                     Color="#95E0DD" />
+</ResourceDictionary>
