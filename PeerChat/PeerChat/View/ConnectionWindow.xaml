@@ -4,159 +4,195 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:PeerChat.View" 
+             xmlns:helpers="clr-namespace:PeerChat.Helpers"
              mc:Ignorable="d"
              d:DesignHeight="450"
              d:DesignWidth="800">
-    <Grid Background="{DynamicResource BackgroundBrush}"
-          Margin="0,0,0,-90">
-
-        <!-- Center container -->
-        <Grid HorizontalAlignment="Center"
+    <UserControl.Resources>
+        <helpers:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+    </UserControl.Resources>
+    <!-- Center container -->
+    <Grid HorizontalAlignment="Center"
               VerticalAlignment="Center">
 
-            <!-- Card -->
-            <Border Width="380"
+        <!-- Card -->
+        <Border Width="380"
                     Padding="30"
                     CornerRadius="20"
                     Background="{DynamicResource CardBrush}">
 
-                <Border.Effect>
-                    <DropShadowEffect BlurRadius="20"
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="20"
                                       ShadowDepth="2"
                                       Opacity="0.2" />
-                </Border.Effect>
+            </Border.Effect>
 
-                <StackPanel>
+            <StackPanel>
 
-                    <!-- Avatar -->
-                    <Grid HorizontalAlignment="Center"
+                <!-- Avatar -->
+                <Grid HorizontalAlignment="Center"
                           Margin="0 0 0 15">
-                        <Border Width="70"
+                    <Border Width="70"
                                 Height="70"
                                 CornerRadius="35"
                                 Background="{DynamicResource PrimaryBrush}">
-                            <TextBlock Text="👤"
+                        <TextBlock Text="👤"
                                        FontSize="30"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center" />
-                        </Border>
-                    </Grid>
+                    </Border>
+                </Grid>
 
-                    <!-- Title -->
-                    <TextBlock Text="Peer Chat"
+                <!-- Title -->
+                <TextBlock Text="Peer Chat"
                                FontSize="22"
                                FontWeight="SemiBold"
                                Foreground="{DynamicResource TextPrimaryBrush}"
                                HorizontalAlignment="Center"
                                Margin="0 0 0 20" />
- 
-                    <!-- Username -->
-                    <StackPanel Margin="0 8">
-                        <TextBlock Text="Username"
+
+                <!-- Username -->
+                <StackPanel Margin="0 8">
+                    <TextBlock Text="Username"
                                    FontSize="12"
                                    Margin="5 0 0 3"
                                    Foreground="{DynamicResource TextSecondaryBrush}" />
 
-                        <Border CornerRadius="10"
+                    <Border CornerRadius="10"
                                 Background="{DynamicResource SurfaceBrush}">
-                            <TextBox Text="{Binding ConnectionWindow.DisplayUserName, UpdateSourceTrigger=PropertyChanged}"
+                        <TextBox Text="{Binding ConnectionWindow.DisplayUserName, UpdateSourceTrigger=PropertyChanged}"
                                      BorderThickness="0"
                                      Background="Transparent"
                                      Padding="10"
                                      FontSize="14"
                                      Foreground="{DynamicResource TextPrimaryBrush}" />
-                        </Border>
-                    </StackPanel>
-                    
-                    <!-- IP Address -->
-                    <StackPanel Margin="0 8">
-                        <TextBlock Text="IP Address"
+                    </Border>
+                </StackPanel>
+
+                <!-- IP Address -->
+                <StackPanel Margin="0 8">
+                    <TextBlock Text="IP Address"
                                    FontSize="12"
                                    Margin="5 0 0 3"
                                    Foreground="{DynamicResource TextSecondaryBrush}" />
 
-                        <Border CornerRadius="10"
+                    <Border CornerRadius="10"
                                 Background="{DynamicResource SurfaceBrush}">
-                            <TextBox Text="{Binding ConnectionWindow.IPAddressText, UpdateSourceTrigger=PropertyChanged}"
+                        <TextBox Text="{Binding ConnectionWindow.IPAddressText, UpdateSourceTrigger=PropertyChanged}"
                                      BorderThickness="0"
                                      Background="Transparent"
                                      Padding="10"
                                      FontSize="14"
                                      Foreground="{DynamicResource TextPrimaryBrush}" />
-                        </Border>
-                    </StackPanel>
+                    </Border>
+                </StackPanel>
 
-                    <!-- Port -->
-                    <StackPanel Margin="0 8">
-                        <TextBlock Text="Port"
+                <!-- Port -->
+                <StackPanel Margin="0 8">
+                    <TextBlock Text="Port"
                                    FontSize="12"
                                    Margin="5 0 0 3"
                                    Foreground="{DynamicResource TextSecondaryBrush}" />
 
-                        <Border CornerRadius="10"
+                    <Border CornerRadius="10"
                                 Background="{DynamicResource SurfaceBrush}">
-                            <TextBox Text="{Binding ConnectionWindow.Port, UpdateSourceTrigger=PropertyChanged}"
+                        <TextBox Text="{Binding ConnectionWindow.Port, UpdateSourceTrigger=PropertyChanged}"
                                      BorderThickness="0"
                                      Background="Transparent"
                                      Padding="10"
                                      FontSize="14"
                                      Foreground="{DynamicResource TextPrimaryBrush}" />
-                        </Border>
-                    </StackPanel>
+                    </Border>
+                </StackPanel>
 
-                    <!-- Status -->
-                    <TextBlock Text="{Binding ConnectionWindow.StatusMessage}"
-                               Foreground="#FF6B6B"
+                <!-- Status -->
+                <TextBlock Text="{Binding ConnectionWindow.StatusMessage}"
+                               Foreground="{DynamicResource TextPrimaryBrush}"
                                FontSize="12"
                                Margin="5"
                                TextWrapping="Wrap" />
 
-                    <!-- Buttons -->
+                <ProgressBar Height="6"
+             Margin="0 10 0 0"
+             IsIndeterminate="True"
+             Visibility="{Binding ConnectionWindow.IsWaiting, Converter={StaticResource BoolToVisibilityConverter}}"/>
+
+                <!-- Buttons -->
+                <StackPanel Margin="0 20 0 0">
+
+                    <!-- Host + Join -->
                     <StackPanel Orientation="Horizontal"
-                                HorizontalAlignment="Center"
-                                Margin="0 20 0 0">
+                HorizontalAlignment="Center"
+                Visibility="{Binding ConnectionWindow.IsNotHosting, Converter={StaticResource BoolToVisibilityConverter}}">
 
                         <Button Content="Host"
-                                Command="{Binding ConnectionWindow.HostCommand}"
-                                Width="110"
-                                Height="35"
-                                FontSize="18"
-                                Margin="5"
-                                Foreground="{DynamicResource TextPrimaryBrush}"
-                                FontWeight="SemiBold"
-                                Background="{DynamicResource PrimaryBrush}"
-                                BorderThickness="0"
-                                Cursor="Hand">
+                Command="{Binding ConnectionWindow.HostCommand}"
+                Width="110"
+                Height="35"
+                FontSize="18"
+                Margin="5"
+                Foreground="{DynamicResource TextPrimaryBrush}"
+                                Visibility="{Binding ConnectionWindow.IsNotHosting, Converter={StaticResource BoolToVisibilityConverter}}"
+                FontWeight="SemiBold"
+                Background="{DynamicResource PrimaryBrush}"
+                BorderThickness="0"
+                Cursor="Hand">
 
                             <Button.Template>
                                 <ControlTemplate TargetType="Button">
-                                    <Border Background="{TemplateBinding Background}"
-                                            CornerRadius="12">
+                                    <Border Background="{TemplateBinding Background}" CornerRadius="12">
                                         <ContentPresenter HorizontalAlignment="Center"
-                                                          VerticalAlignment="Center" />
+                                          VerticalAlignment="Center"/>
                                     </Border>
                                 </ControlTemplate>
                             </Button.Template>
                         </Button>
 
                         <Button Content="Join"
-                                Command="{Binding ConnectionWindow.JoinCommand}"
-                                Width="110"
-                                Height="35"
-                                FontSize="18"
-                                Margin="5"
-                                Foreground="{DynamicResource TextPrimaryBrush}"
-                                FontWeight="SemiBold"
-                                Background="{DynamicResource SecondaryBrush}"
-                                BorderThickness="0"
-                                Cursor="Hand">
+                Command="{Binding ConnectionWindow.JoinCommand}"
+                Width="110"
+                Height="35"
+                FontSize="18"
+                                Visibility="{Binding ConnectionWindow.IsNotHosting, Converter={StaticResource BoolToVisibilityConverter}}"
+                Margin="5"
+                Foreground="{DynamicResource TextPrimaryBrush}"
+                FontWeight="SemiBold"
+                Background="{DynamicResource SecondaryBrush}"
+                BorderThickness="0"
+                Cursor="Hand">
 
                             <Button.Template>
                                 <ControlTemplate TargetType="Button">
-                                    <Border Background="{TemplateBinding Background}"
-                                            CornerRadius="12">
+                                    <Border Background="{TemplateBinding Background}" CornerRadius="12">
                                         <ContentPresenter HorizontalAlignment="Center"
-                                                          VerticalAlignment="Center" />
+                                          VerticalAlignment="Center"/>
+                                    </Border>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
+                    </StackPanel>
+
+
+                    <!-- Cancel -->
+                    <StackPanel HorizontalAlignment="Center"
+                Visibility="{Binding ConnectionWindow.IsHosting, Converter={StaticResource BoolToVisibilityConverter}}">
+
+                        <Button Content="Cancel"
+                Command="{Binding ConnectionWindow.CancelCommand}"
+                Width="110"
+                Height="35"
+                FontSize="18"
+                Margin="5"
+                Cursor="Hand"
+                FontWeight="SemiBold"
+                Foreground="{DynamicResource TextPrimaryBrush}"
+                Background="{DynamicResource SecondaryBrush}">
+
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border Background="{TemplateBinding Background}" CornerRadius="12">
+                                        <ContentPresenter HorizontalAlignment="Center"
+                                          VerticalAlignment="Center"/>
                                     </Border>
                                 </ControlTemplate>
                             </Button.Template>
@@ -165,7 +201,9 @@
                     </StackPanel>
 
                 </StackPanel>
-            </Border>
-        </Grid>
+
+            </StackPanel>
+        </Border>
     </Grid>
+
 </UserControl>

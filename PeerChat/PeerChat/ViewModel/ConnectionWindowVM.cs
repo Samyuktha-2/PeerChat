@@ -1,7 +1,14 @@
 ﻿using PeerChat.Command;
+using PeerChat.Services;
+using PeerChat.View;
+using System;
 using System.Linq;
 using System.Net;
+using System.Net.Sockets;
+using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace PeerChat.ViewModel
@@ -15,6 +22,8 @@ namespace PeerChat.ViewModel
         private bool _isValidIP;
         private bool _isValidDisplayName;
         private bool _isValidPort;
+        private bool isWaiting;
+        private bool isHosting;
 
         public string DisplayUserName
         {
@@ -79,28 +88,141 @@ namespace PeerChat.ViewModel
                 OnPropertyChanged(nameof(IsValidPort));
             }
         }
+        public bool IsWaiting
+        {
+            get => isWaiting;
+            set
+            {
+                isWaiting = value;
+                OnPropertyChanged(nameof(IsWaiting));
+            }
+        }
+        public bool IsHosting
+        {
+            get => isHosting;
+            set
+            {
+                isHosting = value;
+                OnPropertyChanged(nameof(IsHosting));
+                OnPropertyChanged(nameof(IsNotHoisting));
+            }
+        }
+        public bool IsNotHoisting => !IsHosting;
+        private CancellationTokenSource _cts;
 
         public ICommand HostCommand { get; }
         public ICommand JoinCommand { get; }
+        public ICommand CancelCommand { get; }
 
-        public ConnectionWindowVM()
+        private readonly MainVM _main;
+
+
+        public event Action<TcpClient> OnConnected;
+        private readonly NetworkService _service = new NetworkService();
+        
+        public ConnectionWindowVM(MainVM main)
         {
-            HostCommand = new RelayCommand(OnHostClick);
-            JoinCommand = new RelayCommand(OnJoinClick);
+            HostCommand = new RelayCommand(() => _ = StartHosting());
+            JoinCommand = new RelayCommand(() => _ = StartJoining());
+            CancelCommand = new RelayCommand(CancelOperation);
+
+            _main = main;
+
+            IPAddressText = GetLocalIPAddress(); ;
         }
 
-        private void OnHostClick()
+        private async Task StartHosting()
         {
-            if (!ValidateAll())
+            if (!ValidateAll()) return;
+
+            _cts = new CancellationTokenSource();
+
+            IsHosting = true;
+            IsWaiting = true;
+            StatusMessage = "Waiting for peer to connect...";
+
+            try
             {
-                return;
+                if (!int.TryParse(Port, out int portNumber))
+                {
+                    StatusMessage = "Invalid Port";
+                    return;
+                }
+
+                TcpClient client = await _service.StartHostAsync(portNumber, _cts.Token);
+
+                StatusMessage = "Connected";
+                await SendMyName(client);
+                _main.CurrentView = new ChatWindowVM(DisplayUserName,_main, client);
             }
-            StatusMessage = "Host Clicked";
+            catch (OperationCanceledException)
+            {
+                StatusMessage = "Cancelled";
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = $"Error: {ex.Message}";
+            }
+            finally
+            {
+                IsWaiting = false;
+                IsHosting = false;
+            }
         }
 
-        private void OnJoinClick()
+        private async Task StartJoining()
         {
-            StatusMessage = "Join click";
+            if (!ValidateAll()) return;
+
+            StatusMessage = "Connecting...";
+            IsWaiting = true;
+            IsHosting = true;
+
+            try
+            {
+                if (!IPAddress.TryParse(IPAddressText, out _))
+                {
+                    StatusMessage = "Invalid IP Address";
+                    return;
+                }
+
+                if (!int.TryParse(Port, out int portNumber))
+                {
+                    StatusMessage = "Invalid Port";
+                    return;
+                }
+
+                TcpClient client = await _service.ConnectAsync(IPAddressText, portNumber);
+
+                StatusMessage = "Connected";
+                await SendMyName(client);
+                _main.CurrentView = new ChatWindowVM(DisplayUserName, _main, client);
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = $"Connection failed: {ex.Message}";
+            }
+            finally
+            {
+                IsWaiting = false;
+                IsHosting = false;
+            }
+        }
+
+        private void CancelOperation()
+        {
+            _cts?.Cancel();
+            StatusMessage = "Operation cancelled";
+            IsWaiting = false;
+            IsHosting = false;
+        }
+
+        private string GetLocalIPAddress()
+        {
+            return Dns.GetHostEntry(Dns.GetHostName())
+                      .AddressList
+                      .FirstOrDefault(ip => ip.AddressFamily == AddressFamily.InterNetwork)?
+                      .ToString();
         }
 
         private bool ValidateAll()
@@ -119,6 +241,7 @@ namespace PeerChat.ViewModel
 
             if (!IPAddress.TryParse(IPAddressText, out _))
             {
+
                 StatusMessage = "Enter valid IP Address";
                 return false;
             }
@@ -137,6 +260,13 @@ namespace PeerChat.ViewModel
             return true;
         }
 
+        private async Task SendMyName(TcpClient client)
+        {
+            var stream = client.GetStream();
+            byte[] data = Encoding.UTF8.GetBytes(DisplayUserName);
+
+            await MessageProtocol.SendFrameAsync(stream, 0x01, data);
+        }
 
     }
 }
