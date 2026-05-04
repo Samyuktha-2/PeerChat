@@ -10,22 +10,49 @@
              d:DesignWidth="800">
     <UserControl.Resources>
 
-        <!-- Rounded Button -->
-        <Style TargetType="Button">
+        <Style x:Key="IconButtonStyle"
+               TargetType="Button">
+            <Setter Property="Width"
+                    Value="40" />
+            <Setter Property="Height"
+                    Value="40" />
+            <Setter Property="Background"
+                    Value="{DynamicResource SurfaceBrush}" />
             <Setter Property="BorderThickness"
                     Value="0" />
-            <Setter Property="Padding"
-                    Value="8" />
             <Setter Property="Cursor"
                     Value="Hand" />
+
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}"
-                                CornerRadius="12">
+                        <Border x:Name="bd"
+                                Background="{TemplateBinding Background}"
+                                CornerRadius="20">
+
                             <ContentPresenter HorizontalAlignment="Center"
                                               VerticalAlignment="Center" />
                         </Border>
+
+                        <ControlTemplate.Triggers>
+
+                            <!-- Hover -->
+                            <Trigger Property="IsMouseOver"
+                                     Value="True">
+                                <Setter TargetName="bd"
+                                        Property="Background"
+                                        Value="{DynamicResource SecondaryBrush}" />
+                            </Trigger>
+
+                            <!-- Press -->
+                            <Trigger Property="IsPressed"
+                                     Value="True">
+                                <Setter TargetName="bd"
+                                        Property="Background"
+                                        Value="{DynamicResource AccentBrush}" />
+                            </Trigger>
+
+                        </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
@@ -38,9 +65,11 @@
             <Setter Property="BorderThickness"
                     Value="1" />
             <Setter Property="BorderBrush"
-                    Value="#DDD" />
+                    Value="{DynamicResource CardBrush}" />
             <Setter Property="Background"
-                    Value="White" />
+                    Value="{DynamicResource BackgroundBrush}" />
+            <Setter Property="Foreground"
+                    Value="{DynamicResource TextPrimaryBrush}" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="TextBox">
@@ -55,8 +84,47 @@
             </Setter>
         </Style>
 
+        <Style x:Key="AttachmentItemStyle"
+               TargetType="Button">
+            <Setter Property="Background"
+                    Value="Transparent" />
+            <Setter Property="Foreground"
+                    Value="{DynamicResource TextPrimaryBrush}" />
+            <Setter Property="BorderThickness"
+                    Value="0" />
+            <Setter Property="Padding"
+                    Value="8" />
+
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd"
+                                CornerRadius="10"
+                                Background="Transparent">
+
+                            <ContentPresenter Margin="5" />
+
+                        </Border>
+
+                        <ControlTemplate.Triggers>
+
+                            <Trigger Property="IsMouseOver"
+                                     Value="True">
+                                <Setter TargetName="bd"
+                                        Property="Background"
+                                        Value="{DynamicResource CardBrush}" />
+                            </Trigger>
+
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
         <helpers:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
-        
+        <helpers:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
+        <!--<helpers:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter" />-->
+
     </UserControl.Resources>
     
     <Grid Background="{DynamicResource BackgroundBrush}">
@@ -77,20 +145,77 @@
             </Grid.RowDefinitions>
 
             <Button Margin="10"
-                    Height="25"
+                    Height="35"
+                    Style="{StaticResource IconButtonStyle}"
                     Width="35">
                 <Image Source="/Images/conversation.jpg"
                        Width="20"
                        Height="20" />
             </Button>
 
-            <Button Grid.Row="2"
-                    Margin="10"
-                    Height="25">
-                <Image Source="/Images/user.jpg"
-                       Width="30"
-                       Height="20" />
-            </Button>
+            <Grid Grid.Row="2">
+                <Button x:Name="ProfileBtn"
+                        Margin="10"
+                        Style="{DynamicResource IconButtonStyle}"
+                        Command="{Binding ProfileClickCommand}"
+                        Height="35">
+                    <Image Source="/Images/user.jpg"
+                           Width="30"
+                           Height="20" />
+                </Button>
+
+                <!-- POPUP -->
+                <Popup IsOpen="{Binding IsProfileMenuOpen}"
+                       PlacementTarget="{Binding ElementName=ProfileBtn}"
+                       Placement="Top"
+                       AllowsTransparency="True"
+                       StaysOpen="False"
+                       DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
+
+                    <Border Background="{DynamicResource SurfaceBrush}"
+                            CornerRadius="15"
+                            Padding="10">
+
+                        <StackPanel>
+
+                            <!-- ITEM -->
+                            <Button Style="{StaticResource AttachmentItemStyle}">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="👤"
+                                               Margin="5" />
+                                    <TextBlock Text="{Binding ConnectionWindowVM.DisplayUserName}" />
+                                </StackPanel>
+                            </Button>
+
+                            <Button Style="{StaticResource AttachmentItemStyle}">
+                                <StackPanel Orientation="Horizontal" >
+                                    <TextBlock Text="🖌️"
+                                               Margin="5" />
+                                    <TextBlock Text="Theme"/>
+                                </StackPanel>
+                            </Button>
+
+                            <Button Style="{StaticResource AttachmentItemStyle}" >
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="➡️"
+                                               Margin="5" />
+                                    <TextBlock Text="Logout" />
+                                </StackPanel>
+                            </Button>
+
+                            <!--<Button Style="{StaticResource AttachmentItemStyle}">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="🎵"
+                                                   Margin="5" />
+                                        <TextBlock Text="Audio" />
+                                    </StackPanel>
+                                </Button>-->
+
+                        </StackPanel>
+
+                    </Border>
+                </Popup>
+            </Grid>
         </Grid>
 
         <!-- CHAT AREA -->
@@ -112,83 +237,269 @@
                            Foreground="{DynamicResource TextPrimaryBrush}" />
             </Border>
 
+            <Grid Grid.Row="1">
+                <ScrollViewer Grid.Row="1">
+                    <StackPanel>
+
+                        <ItemsControl ItemsSource="{Binding Messages}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Padding="10"
+                                            Margin="5"
+                                            CornerRadius="12"
+                                            MaxWidth="300">
+
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <Setter Property="Background"
+                                                        Value="{DynamicResource CardBrush}" />
+                                                <Setter Property="HorizontalAlignment"
+                                                        Value="Left" />
+
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsSentByMe}"
+                                                                 Value="True">
+                                                        <Setter Property="Background"
+                                                                Value="{DynamicResource PrimaryBrush}" />
+                                                        <Setter Property="HorizontalAlignment"
+                                                                Value="Right" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
+
+                                        
+                                        <StackPanel>
+                                            <!-- 🔥 FIXED CLICKABLE MESSAGE -->
+                                            <Button Background="Transparent"
+                                                    BorderThickness="0"
+                                                    Padding="0"
+                                                    Command="{Binding DataContext.OpenFileCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                    CommandParameter="{Binding}">
+
+                                                <TextBlock Text="{Binding Text}"
+                                                           Foreground="Blue"
+                                                           Cursor="Hand"
+                                                           TextWrapping="Wrap" />
+                                            </Button>
+                                            <!-- FILE NAME -->
+                                            <TextBlock Text="{Binding Text}" />
+
+                                            <!-- PROGRESS -->
+                                            <ProgressBar Height="6"
+                                                         Margin="5"
+                                                         Value="{Binding Progress}"
+                                                         Maximum="1"
+                                                         Visibility="{Binding IsReceiving, Converter={StaticResource BoolToVisibilityConverter}}" />
+
+                                            <Button Content="▶ Play"
+                                                    Visibility="{Binding IsReceiving, Converter={StaticResource BoolToVisibilityConverter}}"
+                                                    Command="{Binding DataContext.PlayVideoCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                    CommandParameter="{Binding}" />
+
+                                            
+                                        </StackPanel>
+
+                                    </Border>
+
+                                    
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <!-- Typing indicator -->
+                        <TextBlock Text="Peer is typing..."
+                                   Visibility="{Binding IsPeerTyping, Converter={StaticResource BoolToVisibilityConverter}}"
+                                   Foreground="Black"
+                                   Margin="10"
+                                   FontStyle="Italic" />
+
+                    </StackPanel>
+                </ScrollViewer>
+
+                <Border Visibility="{Binding ImagePreview, Converter={StaticResource NullToVisibilityConverter}}"
+                        Background="#80000000"
+                        CornerRadius="10"
+                        Margin="20"
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Center"
+                        Padding="10">
+
+                    <StackPanel>
+
+                        <!-- LARGE IMAGE -->
+                        <Image Source="{Binding ImagePreview}"
+                               Width="300"
+                               Height="300"
+                               Stretch="Uniform"
+                               Margin="5" />
+
+                        <!-- FILE NAME -->
+                        <TextBlock Text="{Binding SelectedImageName}"
+                                   HorizontalAlignment="Center"
+                                   Foreground="White"
+                                   Margin="5" />
+
+                        <!-- CLOSE BUTTON -->
+                        <Button Content="Cancel"
+                                Command="{Binding ClearPreviewCommand}"
+                                Margin="5"
+                                Width="100"
+                                HorizontalAlignment="Center" />
+                    </StackPanel>
+                </Border>
+
+                <Border Visibility="{Binding SelectedVideoName, Converter={StaticResource NullToVisibilityConverter}}"
+                        Background="#80000000"
+                        CornerRadius="10"
+                        Margin="20"
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Center"
+                        Padding="10">
+
+                    <StackPanel Width="350">
+
+                        <!-- VIDEO PLAYER -->
+                        <MediaElement Source="{Binding VideoPreviewPath}"
+                                      Width="320"
+                                      Height="240"
+                                      LoadedBehavior="Manual"
+                                      UnloadedBehavior="Stop"
+                                      Name="VideoPreviewPlayer" />
+
+                        <!-- CONTROLS -->
+                        <StackPanel Orientation="Horizontal"
+                                    HorizontalAlignment="Center"
+                                    Margin="5">
+
+                            <Button Content="▶"
+                                    Width="40"
+                                    Command="{Binding PlayVideoCommand}" />
+
+                            <Button Content="⏸"
+                                    Width="40"
+                                    Command="{Binding PauseVideoCommand}" />
+
+                        </StackPanel>
+
+                        <!-- FILE NAME -->
+                        <TextBlock Text="{Binding SelectedVideoName}"
+                                   HorizontalAlignment="Center"
+                                   Foreground="White"
+                                   Margin="5" />
+
+                        <!-- ACTIONS -->
+                        <StackPanel Orientation="Horizontal"
+                                    HorizontalAlignment="Center">
+
+                            <Button Content="Cancel"
+                                    Command="{Binding ClearVideoPreviewCommand}"
+                                    Margin="5" />
+
+                            <Button Content="Send"
+                                    Command="{Binding SendCommand}"
+                                    Margin="5" />
+                        </StackPanel>
+
+                    </StackPanel>
+                </Border>
+            </Grid>
             <!-- MESSAGES -->
-            <ScrollViewer Grid.Row="1">
-                <StackPanel>
-
-                    <!-- Messages -->
-                    <ItemsControl ItemsSource="{Binding Messages}">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <Border Padding="10"
-                                        Margin="5"
-                                        CornerRadius="12"
-                                        MaxWidth="300">
-
-                                    <Border.Style>
-                                        <Style TargetType="Border">
-                                            <Setter Property="Background"
-                                                    Value="{DynamicResource CardBrush}" />
-                                            <Setter Property="HorizontalAlignment"
-                                                    Value="Left" />
-
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding IsSentByMe}"
-                                                             Value="True">
-                                                    <Setter Property="Background"
-                                                            Value="{DynamicResource PrimaryBrush}" />
-                                                    <Setter Property="HorizontalAlignment"
-                                                            Value="Right" />
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </Border.Style>
-
-                                    <TextBlock Text="{Binding Text}"
-                                               TextWrapping="Wrap"
-                                               Foreground="White" />
-                                </Border>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-
-                    <TextBlock Text="Typing..."
-                               Visibility="{Binding IsPeerTyping, Converter={StaticResource BoolToVisibilityConverter}}"
-                               Foreground="Gray"
-                               Margin="10"
-                               FontStyle="Italic" />
-
-                </StackPanel>
-            </ScrollViewer>
             
+
             <Grid Grid.Row="2"
                   Margin="10"
                   Background="{DynamicResource SurfaceBrush}">
+
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="50" />
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="60" />
                 </Grid.ColumnDefinitions>
 
-                <Button Margin="5"
-                        Command="{Binding AttachmentCommand}">
-                    <Image Source="/Images/AttachmentIcon.jpg"
-                           Width="20"
-                           Height="20" />
-                </Button>
+                <!-- ATTACH BUTTON -->
+                <Grid>
+                    <Button x:Name="AttachBtn"
+                            Margin="5"
+                            Style="{StaticResource IconButtonStyle}"
+                            Command="{Binding ShowAttachmentMenuCommand}">
+                        <Image Source="/Images/AttachmentIcon.jpg"
+                               Width="20"
+                               Height="20" />
+                    </Button>
 
+                    <!-- POPUP -->
+                    <Popup IsOpen="{Binding IsAttachmentMenuOpen}"
+                           PlacementTarget="{Binding ElementName=AttachBtn}" 
+                           Placement="Top"
+                           AllowsTransparency="True"
+                           StaysOpen="False"
+                           DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
+
+                        <Border Background="{DynamicResource SurfaceBrush}"
+                                CornerRadius="15"
+                                Padding="10">
+
+                            <StackPanel>
+
+                                <!-- ITEM -->
+                                <Button Style="{StaticResource AttachmentItemStyle}"
+                                        Command="{Binding DocumentCommand}">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="📄"
+                                                   Margin="5" />
+                                        <TextBlock Text="Document" />
+                                    </StackPanel>
+                                </Button>
+
+                                <Button Style="{StaticResource AttachmentItemStyle}" 
+                                        Command="{Binding DataContext.ImageCommand, RelativeSource={RelativeSource AncestorType=UserControl}}">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="🖼️"
+                                                   Margin="5" />
+                                        <TextBlock Text="Photos" />
+                                    </StackPanel>
+                                </Button>
+
+                                <Button Style="{StaticResource AttachmentItemStyle}"
+                                        Command="{Binding VideoCommand}">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="🖼️"
+                                                   Margin="5" />
+                                        <TextBlock Text="Video" />
+                                    </StackPanel>
+                                </Button>
+
+                                <!--<Button Style="{StaticResource AttachmentItemStyle}">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="🎵"
+                                                   Margin="5" />
+                                        <TextBlock Text="Audio" />
+                                    </StackPanel>
+                                </Button>-->
+
+                            </StackPanel>
+
+                        </Border>
+                    </Popup> 
+                </Grid>
+
+                <!-- TEXTBOX -->
                 <TextBox Grid.Column="1"
                          Text="{Binding OutgoingMessage, UpdateSourceTrigger=PropertyChanged}"
                          Margin="5"
                          VerticalContentAlignment="Center" />
 
+                <!-- SEND -->
                 <Button Grid.Column="2"
                         Margin="5"
+                        Style="{StaticResource IconButtonStyle}"
                         Command="{Binding SendCommand}">
                     <Image Source="/Images/send.jpg"
                            Width="20"
                            Height="20" />
                 </Button>
+
             </Grid>
 
         </Grid>

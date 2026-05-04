@@ -4,17 +4,17 @@
 winexe
 C#
 .cs
-D:\PeerChat\PeerChat\PeerChat\obj\Debug\
+C:\Users\OptiCheck\Desktop\Chat Application\PeerChat\PeerChat\obj\Debug\
 PeerChat
 none
 false
 DEBUG;TRACE
-D:\PeerChat\PeerChat\PeerChat\App.xaml
-5829916381
+C:\Users\OptiCheck\Desktop\Chat Application\PeerChat\PeerChat\App.xaml
+51185731477
 
-181233282179
-15767508510
+24-2133994917
+16-1439927165
 MainWindow.xaml;Theme\DarkTheme.xaml;Theme\LightTheme.xaml;View\ChatWindow.xaml;View\ConnectionWindow.xaml;
 
-False
+True
 

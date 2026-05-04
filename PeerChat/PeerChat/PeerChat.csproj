@@ -61,7 +61,10 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Command\RelayCommand.cs" />
+    <Compile Include="Command\RelayCommandT.cs" />
     <Compile Include="Helpers\BoolToVisibilityConverter.cs" />
+    <Compile Include="Helpers\InverseBoolToVisibilityConverter.cs" />
+    <Compile Include="Helpers\NullToVisibilityConverter.cs" />
     <Compile Include="Model\MessageModel.cs" />
     <Compile Include="Model\UserModel.cs" />
     <Compile Include="Services\MessageProtocol.cs" />
