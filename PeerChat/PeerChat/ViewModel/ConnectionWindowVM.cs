@@ -108,16 +108,16 @@ namespace PeerChat.ViewModel
             }
         }
         public bool IsNotHoisting => !IsHosting;
+
         private CancellationTokenSource _cts;
+        private readonly TcpClient _client;
 
         public ICommand HostCommand { get; }
         public ICommand JoinCommand { get; }
         public ICommand CancelCommand { get; }
 
         private readonly MainVM _main;
-
-
-        public event Action<TcpClient> OnConnected;
+         
         private readonly NetworkService _service = new NetworkService();
         
         public ConnectionWindowVM(MainVM main)
@@ -152,8 +152,9 @@ namespace PeerChat.ViewModel
                 TcpClient client = await _service.StartHostAsync(portNumber, _cts.Token);
 
                 StatusMessage = "Connected";
-                await SendMyName(client);
-                _main.CurrentView = new ChatWindowVM(DisplayUserName,_main, client);
+
+                // ❗ PASS NAME TO CHAT VM
+                _main.CurrentView = new ChatWindowVM(DisplayUserName, _main, client);
             }
             catch (OperationCanceledException)
             {
@@ -195,7 +196,8 @@ namespace PeerChat.ViewModel
                 TcpClient client = await _service.ConnectAsync(IPAddressText, portNumber);
 
                 StatusMessage = "Connected";
-                await SendMyName(client);
+
+                // ❗ PASS NAME TO CHAT VM
                 _main.CurrentView = new ChatWindowVM(DisplayUserName, _main, client);
             }
             catch (Exception ex)
@@ -260,9 +262,9 @@ namespace PeerChat.ViewModel
             return true;
         }
 
-        private async Task SendMyName(TcpClient client)
+        private async Task SendMyName()
         {
-            var stream = client.GetStream();
+            var stream = _client.GetStream();
             byte[] data = Encoding.UTF8.GetBytes(DisplayUserName);
 
             await MessageProtocol.SendFrameAsync(stream, 0x01, data);

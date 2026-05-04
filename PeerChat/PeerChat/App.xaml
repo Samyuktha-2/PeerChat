@@ -17,10 +17,6 @@
                 <view:ConnectionWindow />
             </DataTemplate> 
             
-        </ResourceDictionary>
-
-       
-
-
+        </ResourceDictionary>  
     </Application.Resources>
 </Application>

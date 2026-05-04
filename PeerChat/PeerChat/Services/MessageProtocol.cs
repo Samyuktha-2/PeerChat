@@ -9,29 +9,52 @@ namespace PeerChat.Services
 {
     public static class MessageProtocol
     {
-        public static async Task SendFrameAsync(NetworkStream stream, int type, byte[] payload)
-        {
-            byte[] typeBytes = BitConverter.GetBytes(type);
-            byte[] lengthBytes = BitConverter.GetBytes(payload.Length);
 
-            await stream.WriteAsync(typeBytes, 0, typeBytes.Length);
-            await stream.WriteAsync(lengthBytes, 0, lengthBytes.Length);
+        public static async Task SendFrameAsync(NetworkStream stream, byte type, byte[] payload)
+        {
+            byte[] header = new byte[5];
+
+            header[0] = type;
+
+            int length = payload.Length;
+            header[1] = (byte)((length >> 24) & 0xFF);
+            header[2] = (byte)((length >> 16) & 0xFF);
+            header[3] = (byte)((length >> 8) & 0xFF);
+            header[4] = (byte)(length & 0xFF);
+
+            await stream.WriteAsync(header, 0, 5);
             await stream.WriteAsync(payload, 0, payload.Length);
         }
 
-        public static async Task<(int type, byte[] payload)> ReceiveFrameAsync(NetworkStream stream)
+        public static async Task<(byte type, byte[] payload)> ReceiveFrameAsync(NetworkStream stream)
         {
-            byte[] typeBytes = new byte[4];
-            byte[] lengthBytes = new byte[4];
+            byte[] header = new byte[5];
+            int read = 0;
 
-            await stream.ReadAsync(typeBytes, 0, 4);
-            await stream.ReadAsync(lengthBytes, 0, 4);
+            while (read < 5)
+            {
+                int r = await stream.ReadAsync(header, read, 5 - read);
+                if (r == 0) throw new Exception("Disconnected");
+                read += r;
+            }
 
-            int type = BitConverter.ToInt32(typeBytes, 0);
-            int length = BitConverter.ToInt32(lengthBytes, 0);
+            byte type = header[0];
+
+            int length =
+                (header[1] << 24) |
+                (header[2] << 16) |
+                (header[3] << 8) |
+                header[4];
 
             byte[] payload = new byte[length];
-            await stream.ReadAsync(payload, 0, length);
+            read = 0;
+
+            while (read < length)
+            {
+                int r = await stream.ReadAsync(payload, read, length - read);
+                if (r == 0) throw new Exception("Disconnected");
+                read += r;
+            }
 
             return (type, payload);
         }
