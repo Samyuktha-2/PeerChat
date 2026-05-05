@@ -21,6 +21,11 @@ D:\PeerChat\PeerChat\PeerChat\obj\Debug\PeerChat.exe
 D:\PeerChat\PeerChat\PeerChat\obj\Debug\PeerChat.pdb
 D:\PeerChat\PeerChat\PeerChat\obj\Debug\View\ChatWindow.g.cs
 D:\PeerChat\PeerChat\PeerChat\obj\Debug\View\ChatWindow.baml
+C:\Users\OptiCheck\Desktop\Chat Application\PeerChat\PeerChat\bin\Debug\PeerChat.exe.config
+C:\Users\OptiCheck\Desktop\Chat Application\PeerChat\PeerChat\bin\Debug\PeerChat.exe
+C:\Users\OptiCheck\Desktop\Chat Application\PeerChat\PeerChat\bin\Debug\PeerChat.pdb
+C:\Users\OptiCheck\Desktop\Chat Application\PeerChat\PeerChat\bin\Debug\GoLibrary.dll
+C:\Users\OptiCheck\Desktop\Chat Application\PeerChat\PeerChat\obj\Debug\PeerChat.csprojAssemblyReference.cache
 C:\Users\OptiCheck\Desktop\Chat Application\PeerChat\PeerChat\obj\Debug\MainWindow.g.cs
 C:\Users\OptiCheck\Desktop\Chat Application\PeerChat\PeerChat\obj\Debug\View\ChatWindow.g.cs
 C:\Users\OptiCheck\Desktop\Chat Application\PeerChat\PeerChat\obj\Debug\View\ConnectionWindow.g.cs
@@ -28,10 +33,6 @@ C:\Users\OptiCheck\Desktop\Chat Application\PeerChat\PeerChat\obj\Debug\App.g.cs
 C:\Users\OptiCheck\Desktop\Chat Application\PeerChat\PeerChat\obj\Debug\GeneratedInternalTypeHelper.g.cs
 C:\Users\OptiCheck\Desktop\Chat Application\PeerChat\PeerChat\obj\Debug\PeerChat_MarkupCompile.cache
 C:\Users\OptiCheck\Desktop\Chat Application\PeerChat\PeerChat\obj\Debug\PeerChat_MarkupCompile.lref
-C:\Users\OptiCheck\Desktop\Chat Application\PeerChat\PeerChat\bin\Debug\PeerChat.exe.config
-C:\Users\OptiCheck\Desktop\Chat Application\PeerChat\PeerChat\bin\Debug\PeerChat.exe
-C:\Users\OptiCheck\Desktop\Chat Application\PeerChat\PeerChat\bin\Debug\PeerChat.pdb
-C:\Users\OptiCheck\Desktop\Chat Application\PeerChat\PeerChat\bin\Debug\GoLibrary.dll
 C:\Users\OptiCheck\Desktop\Chat Application\PeerChat\PeerChat\obj\Debug\App.baml
 C:\Users\OptiCheck\Desktop\Chat Application\PeerChat\PeerChat\obj\Debug\MainWindow.baml
 C:\Users\OptiCheck\Desktop\Chat Application\PeerChat\PeerChat\obj\Debug\Theme\DarkTheme.baml
@@ -45,4 +46,3 @@ C:\Users\OptiCheck\Desktop\Chat Application\PeerChat\PeerChat\obj\Debug\PeerChat
 C:\Users\OptiCheck\Desktop\Chat Application\PeerChat\PeerChat\obj\Debug\PeerChat.csproj.CopyComplete
 C:\Users\OptiCheck\Desktop\Chat Application\PeerChat\PeerChat\obj\Debug\PeerChat.exe
 C:\Users\OptiCheck\Desktop\Chat Application\PeerChat\PeerChat\obj\Debug\PeerChat.pdb
-C:\Users\OptiCheck\Desktop\Chat Application\PeerChat\PeerChat\obj\Debug\PeerChat.csprojAssemblyReference.cache

@@ -9,7 +9,7 @@ namespace PeerChat.ViewModel
     public class MainVM : BaseVM
     {
         public ConnectionWindowVM ConnectionWindow { get; set; }
-        public ICommand ThemeCommand { get; }
+        public ChatWindowVM ChatWindow { get; set; } 
 
         public object CurrentView
         {
@@ -20,31 +20,17 @@ namespace PeerChat.ViewModel
                 OnPropertyChanged(nameof(CurrentView));
             }
         }
+
         public MainVM()
         {
-            ConnectionWindow = new ConnectionWindowVM(this);
-            ThemeCommand = new RelayCommand(ChangeTheme);
+            ConnectionWindow = new ConnectionWindowVM(this);  
 
             CurrentView =  new ConnectionWindow();
         }
 
-        private bool isDark = true;
+        private bool isDark = false;
         private object currentView;
 
-        private void ChangeTheme()
-        {
-            var app = Application.Current;
-            var dictionaries = app.Resources.MergedDictionaries;
-
-            dictionaries[0] = new ResourceDictionary()
-            {
-                Source = new Uri(
-                    isDark ? "Theme/LightTheme.xaml"
-                           : "Theme/DarkTheme.xaml",
-                    UriKind.Relative)
-            };
-
-            isDark = !isDark;
-        }
+        
     }
 }

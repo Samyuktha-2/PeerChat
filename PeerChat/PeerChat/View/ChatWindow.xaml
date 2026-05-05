@@ -123,10 +123,10 @@
 
         <helpers:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
         <helpers:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
-        <!--<helpers:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter" />-->
+        <helpers:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter" />
 
     </UserControl.Resources>
-    
+
     <Grid Background="{DynamicResource BackgroundBrush}">
 
         <!-- 2 COLUMNS -->
@@ -164,38 +164,43 @@
                            Height="20" />
                 </Button>
 
-                <!-- POPUP -->
                 <Popup IsOpen="{Binding IsProfileMenuOpen}"
                        PlacementTarget="{Binding ElementName=ProfileBtn}"
                        Placement="Top"
                        AllowsTransparency="True"
-                       StaysOpen="False"
-                       DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
-
+                       StaysOpen="False">
                     <Border Background="{DynamicResource SurfaceBrush}"
                             CornerRadius="15"
                             Padding="10">
-
                         <StackPanel>
 
-                            <!-- ITEM -->
                             <Button Style="{StaticResource AttachmentItemStyle}">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="👤"
                                                Margin="5" />
-                                    <TextBlock Text="{Binding ConnectionWindowVM.DisplayUserName}" />
+                                    <TextBlock Text="{Binding MyName}" />
+                                </StackPanel>
+                            </Button>
+
+                            <Button Style="{StaticResource AttachmentItemStyle}"
+                                    Command="{Binding ThemeCommand}">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="🖌️"
+                                               Margin="5" />
+                                    <TextBlock Text="Theme" />
+                                </StackPanel>
+                            </Button>
+
+                            <Button Style="{StaticResource AttachmentItemStyle}"
+                                    Command="{Binding DebugLogCommand}">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="🐞"
+                                               Margin="5" />
+                                    <TextBlock Text="Debug Log" />
                                 </StackPanel>
                             </Button>
 
                             <Button Style="{StaticResource AttachmentItemStyle}">
-                                <StackPanel Orientation="Horizontal" >
-                                    <TextBlock Text="🖌️"
-                                               Margin="5" />
-                                    <TextBlock Text="Theme"/>
-                                </StackPanel>
-                            </Button>
-
-                            <Button Style="{StaticResource AttachmentItemStyle}" >
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="➡️"
                                                Margin="5" />
@@ -203,18 +208,10 @@
                                 </StackPanel>
                             </Button>
 
-                            <!--<Button Style="{StaticResource AttachmentItemStyle}">
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="🎵"
-                                                   Margin="5" />
-                                        <TextBlock Text="Audio" />
-                                    </StackPanel>
-                                </Button>-->
-
                         </StackPanel>
-
                     </Border>
                 </Popup>
+
             </Grid>
         </Grid>
 
@@ -222,7 +219,7 @@
         <Grid Grid.Column="1">
 
             <Grid.RowDefinitions>
-                <RowDefinition Height="50" />
+                <RowDefinition Height="70" />
                 <RowDefinition Height="*" />
                 <RowDefinition Height="70" />
             </Grid.RowDefinitions>
@@ -231,10 +228,15 @@
             <Border Background="{DynamicResource SurfaceBrush}"
                     Padding="10">
 
-                <TextBlock Text="{Binding SelectedUserName}"
-                           FontWeight="Bold"
-                           FontSize="16"
-                           Foreground="{DynamicResource TextPrimaryBrush}" />
+                <StackPanel>
+                    <TextBlock Text="{Binding SelectedUserName}"
+                               FontWeight="Bold"
+                               FontSize="16"
+                               Foreground="{DynamicResource TextPrimaryBrush}" />
+                    <TextBlock Text="{Binding PeerStatus}"
+                               FontSize="14"
+                               Foreground="{DynamicResource TextPrimaryBrush}" />
+                </StackPanel>
             </Border>
 
             <Grid Grid.Row="1">
@@ -268,55 +270,94 @@
                                             </Style>
                                         </Border.Style>
 
-                                        
+                                        <!-- 🔥 ADD THIS WRAPPER -->
                                         <StackPanel>
-                                            <!-- 🔥 FIXED CLICKABLE MESSAGE -->
-                                            <Button Background="Transparent"
-                                                    BorderThickness="0"
-                                                    Padding="0"
-                                                    Command="{Binding DataContext.OpenFileCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                    CommandParameter="{Binding}">
 
-                                                <TextBlock Text="{Binding Text}"
-                                                           Foreground="Blue"
-                                                           Cursor="Hand"
-                                                           TextWrapping="Wrap" />
-                                            </Button>
-                                            <!-- FILE NAME -->
-                                            <TextBlock Text="{Binding Text}" />
+                                            <!-- ✅ EXISTING TEXT (UNCHANGED) -->
+                                            <!--<TextBlock Text="{Binding Text}"
+                                                       TextWrapping="Wrap"
+                                                       FontSize="20"
+                                                       Foreground="{DynamicResource TextPrimaryBrush}"
+                                                       Visibility="{Binding HasImage, Converter={StaticResource InverseBoolToVisibilityConverter}}" />-->
+                                            <TextBlock Text="{Binding Text}"
+                                                       TextWrapping="Wrap"
+                                                       FontSize="16"
+                                                       Foreground="{DynamicResource TextPrimaryBrush}">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="HorizontalAlignment"
+                                                                Value="Left" />
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsSystemMessage}"
+                                                                         Value="True">
+                                                                <Setter Property="HorizontalAlignment"
+                                                                        Value="Center" />
+                                                                <Setter Property="Foreground"
+                                                                        Value="Gray" />
+                                                                <Setter Property="FontStyle"
+                                                                        Value="Italic" />
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
 
-                                            <!-- PROGRESS -->
-                                            <ProgressBar Height="6"
-                                                         Margin="5"
-                                                         Value="{Binding Progress}"
-                                                         Maximum="1"
-                                                         Visibility="{Binding IsReceiving, Converter={StaticResource BoolToVisibilityConverter}}" />
+                                            <!-- ✅ IMAGE MESSAGE -->
+                                            <Border MaxWidth="320"
+                                                    Margin="5"
+                                                    Visibility="{Binding HasImage, Converter={StaticResource BoolToVisibilityConverter}}">
 
-                                            <Button Content="▶ Play"
-                                                    Visibility="{Binding IsReceiving, Converter={StaticResource BoolToVisibilityConverter}}"
-                                                    Command="{Binding DataContext.PlayVideoCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                    CommandParameter="{Binding}" />
+                                                <Image Source="{Binding Image}"
+                                                       Stretch="Uniform"
+                                                       Cursor="Hand"
+                                                       MouseLeftButtonDown="Image_Click" />
 
-                                            
+                                            </Border>
+
+                                            <!-- VIDEO -->
+                                            <StackPanel Visibility="{Binding IsVideo, Converter={StaticResource BoolToVisibilityConverter}}">
+
+                                                <!-- Progress -->
+                                                <ProgressBar Value="{Binding Progress}"
+                                                             Maximum="100"
+                                                             Height="10"
+                                                             Margin="5"
+                                                             Visibility="{Binding IsCompleted, Converter={StaticResource InverseBoolToVisibilityConverter}}" />
+
+                                                <!-- Thumbnail + Play -->
+                                                <Grid Visibility="{Binding IsCompleted, Converter={StaticResource BoolToVisibilityConverter}}">
+                                                    <Image Width="200"
+                                                           Height="120"
+                                                           Source="C:\Users\OptiCheck\Desktop\Chat Application\PeerChat\PeerChat\Images\video_placeholder.png" />
+
+                                                    <Button Content="▶"
+                                                            Width="40"
+                                                            Height="40"
+                                                            HorizontalAlignment="Center"
+                                                            VerticalAlignment="Center"
+                                                            Command="{Binding DataContext.PlayVideoCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                            CommandParameter="{Binding VideoFilePath}" />
+                                                </Grid>
+
+                                            </StackPanel>
+
                                         </StackPanel>
 
                                     </Border>
-
-                                    
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
 
-                        <!-- Typing indicator -->
                         <TextBlock Text="Peer is typing..."
                                    Visibility="{Binding IsPeerTyping, Converter={StaticResource BoolToVisibilityConverter}}"
-                                   Foreground="Black"
+                                   Foreground="Gray"
                                    Margin="10"
                                    FontStyle="Italic" />
 
                     </StackPanel>
                 </ScrollViewer>
 
+                <!--Image Preview-->
                 <Border Visibility="{Binding ImagePreview, Converter={StaticResource NullToVisibilityConverter}}"
                         Background="#80000000"
                         CornerRadius="10"
@@ -327,29 +368,93 @@
 
                     <StackPanel>
 
-                        <!-- LARGE IMAGE -->
                         <Image Source="{Binding ImagePreview}"
                                Width="300"
                                Height="300"
                                Stretch="Uniform"
                                Margin="5" />
 
-                        <!-- FILE NAME -->
                         <TextBlock Text="{Binding SelectedImageName}"
                                    HorizontalAlignment="Center"
                                    Foreground="White"
                                    Margin="5" />
 
-                        <!-- CLOSE BUTTON -->
-                        <Button Content="Cancel"
-                                Command="{Binding ClearPreviewCommand}"
-                                Margin="5"
-                                Width="100"
-                                HorizontalAlignment="Center" />
+                        <StackPanel Orientation="Horizontal">
+                            <Button Content="Discard"
+                                    Command="{Binding ClearPreviewCommand}"
+                                    Margin="5"
+                                    Width="100"
+                                    HorizontalAlignment="Left" />
+                            <Button Grid.Column="2"
+                                    Margin="5"
+                                    Style="{StaticResource IconButtonStyle}"
+                                    Command="{Binding SendCommand}">
+                                <Image Source="/Images/send.jpg"
+                                       Width="20"
+                                       Height="20" />
+                            </Button>
+                        </StackPanel>
                     </StackPanel>
                 </Border>
 
-                <Border Visibility="{Binding SelectedVideoName, Converter={StaticResource NullToVisibilityConverter}}"
+                <!--Debug Log-->
+                <Border Background="{DynamicResource SurfaceBrush}"
+                        Visibility="{Binding IsLogVisible,Converter={StaticResource BoolToVisibilityConverter}}"
+                        Padding="10"
+                        CornerRadius="10"
+                        Width="350"
+                        Height="250">
+
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Debug Log"
+                                       FontWeight="Bold"
+                                       Foreground="{DynamicResource TextPrimaryBrush}"
+                                       Margin="5" />
+
+                            <Button Content="❌"
+                                    HorizontalAlignment="Right"
+                                    Cursor="Hand"
+                                    Command="{Binding DebugLogCommand}"
+                                    Margin="230 5 5 5" />
+                        </StackPanel>
+                        <ScrollViewer  Grid.Row="1" >
+                             
+
+                                <!-- 🔥 YOUR LOG UI GOES HERE -->
+                                <ListBox ItemsSource="{Binding DebugLogs}">
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Margin="5">
+
+                                                <TextBlock FontWeight="Bold">
+                                <Run Text="{Binding User}" />
+                                <Run Text=": " />
+                                <Run Text="{Binding Direction}" />
+                                                </TextBlock>
+
+                                                <TextBlock>
+                                <Run Text="{Binding ContentType}" />
+                                <Run Text=": " />
+                                <Run Text="{Binding Content}" />
+                                                </TextBlock>
+
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+ 
+                        </ScrollViewer>
+                    </Grid>
+
+                </Border>
+                <!--Video Preview-->
+                <!--<Border Visibility="{Binding SelectedVideoName, Converter={StaticResource NullToVisibilityConverter}}"
                         Background="#80000000"
                         CornerRadius="10"
                         Margin="20"
@@ -359,7 +464,9 @@
 
                     <StackPanel Width="350">
 
-                        <!-- VIDEO PLAYER -->
+                        -->
+                <!-- VIDEO PLAYER -->
+                <!--
                         <MediaElement Source="{Binding VideoPreviewPath}"
                                       Width="320"
                                       Height="240"
@@ -367,7 +474,9 @@
                                       UnloadedBehavior="Stop"
                                       Name="VideoPreviewPlayer" />
 
-                        <!-- CONTROLS -->
+                        -->
+                <!-- CONTROLS -->
+                <!--
                         <StackPanel Orientation="Horizontal"
                                     HorizontalAlignment="Center"
                                     Margin="5">
@@ -382,33 +491,34 @@
 
                         </StackPanel>
 
-                        <!-- FILE NAME -->
+                        -->
+                <!-- FILE NAME -->
+                <!--
                         <TextBlock Text="{Binding SelectedVideoName}"
                                    HorizontalAlignment="Center"
                                    Foreground="White"
                                    Margin="5" />
 
-                        <!-- ACTIONS -->
+                        -->
+                <!-- ACTIONS -->
+                <!--
                         <StackPanel Orientation="Horizontal"
                                     HorizontalAlignment="Center">
 
                             <Button Content="Cancel"
                                     Command="{Binding ClearVideoPreviewCommand}"
                                     Margin="5" />
-
-                            <Button Content="Send"
-                                    Command="{Binding SendCommand}"
-                                    Margin="5" />
+ 
                         </StackPanel>
 
                     </StackPanel>
-                </Border>
+                </Border>-->
             </Grid>
             <!-- MESSAGES -->
-            
 
             <Grid Grid.Row="2"
                   Margin="10"
+                  Visibility="{Binding IsConnected, Converter={StaticResource BoolToVisibilityConverter}}"
                   Background="{DynamicResource SurfaceBrush}">
 
                 <Grid.ColumnDefinitions>
@@ -430,7 +540,7 @@
 
                     <!-- POPUP -->
                     <Popup IsOpen="{Binding IsAttachmentMenuOpen}"
-                           PlacementTarget="{Binding ElementName=AttachBtn}" 
+                           PlacementTarget="{Binding ElementName=AttachBtn}"
                            Placement="Top"
                            AllowsTransparency="True"
                            StaysOpen="False"
@@ -452,12 +562,12 @@
                                     </StackPanel>
                                 </Button>
 
-                                <Button Style="{StaticResource AttachmentItemStyle}" 
+                                <Button Style="{StaticResource AttachmentItemStyle}"
                                         Command="{Binding DataContext.ImageCommand, RelativeSource={RelativeSource AncestorType=UserControl}}">
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Text="🖼️"
                                                    Margin="5" />
-                                        <TextBlock Text="Photos" />
+                                        <TextBlock Text="Images" />
                                     </StackPanel>
                                 </Button>
 
@@ -469,26 +579,27 @@
                                         <TextBlock Text="Video" />
                                     </StackPanel>
                                 </Button>
-
-                                <!--<Button Style="{StaticResource AttachmentItemStyle}">
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="🎵"
-                                                   Margin="5" />
-                                        <TextBlock Text="Audio" />
-                                    </StackPanel>
-                                </Button>-->
-
                             </StackPanel>
 
                         </Border>
-                    </Popup> 
+                    </Popup>
                 </Grid>
 
                 <!-- TEXTBOX -->
                 <TextBox Grid.Column="1"
-                         Text="{Binding OutgoingMessage, UpdateSourceTrigger=PropertyChanged}"
                          Margin="5"
-                         VerticalContentAlignment="Center" />
+                         Text="{Binding OutGoingMessage, UpdateSourceTrigger=PropertyChanged}"
+                         AcceptsReturn="True"
+                         TextWrapping="Wrap"
+                         BorderThickness="0"
+                         Background="Transparent"
+                         VerticalAlignment="Top"
+                         MinHeight="30">
+                    <TextBox.InputBindings>
+                        <KeyBinding Key="Enter"
+                                    Command="{Binding SendCommand}" />
+                    </TextBox.InputBindings>
+                </TextBox>
 
                 <!-- SEND -->
                 <Button Grid.Column="2"

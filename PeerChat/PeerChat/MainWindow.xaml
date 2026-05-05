@@ -18,15 +18,8 @@
     </Window.Resources>
     <Grid>
         <ContentControl Content="{Binding CurrentView}"/>
-        <Button VerticalAlignment="Top" HorizontalAlignment="Right"
-                Width="50"
-                Height="30"
-                Foreground="White"
-                FontSize="15"
-                Margin="10"
-                Command="{Binding ThemeCommand}"
-                Content="Theme" Background="{DynamicResource PrimaryBrush}"/>
-        <!--<view:ConnectionWindow VerticalAlignment="Center" HorizontalAlignment="Center"/>-->
+        
+        
     </Grid>
 
 </Window>

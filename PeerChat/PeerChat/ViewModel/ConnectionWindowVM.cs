@@ -15,7 +15,7 @@ namespace PeerChat.ViewModel
 {
     public class ConnectionWindowVM : BaseVM
     {
-        private string _displayUserName;
+        private string _displayUserName = Environment.UserName;
         private string _iPAddressText;
         private string _port = "9000";
         private string _statusMessage;
