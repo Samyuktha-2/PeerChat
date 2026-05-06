@@ -31,7 +31,7 @@ namespace PeerChat.ViewModel
             set
             {
                 _displayUserName = value;
-                OnPropertyChanged(nameof(DisplayUserName)); 
+                OnPropertyChanged(nameof(DisplayUserName));
             }
         }
         public string IPAddressText
@@ -40,7 +40,7 @@ namespace PeerChat.ViewModel
             set
             {
                 _iPAddressText = value;
-                OnPropertyChanged(nameof(IPAddressText)); 
+                OnPropertyChanged(nameof(IPAddressText));
             }
         }
         public string Port
@@ -49,7 +49,7 @@ namespace PeerChat.ViewModel
             set
             {
                 _port = value;
-                OnPropertyChanged(nameof(Port)); 
+                OnPropertyChanged(nameof(Port));
             }
         }
         public string StatusMessage
@@ -107,30 +107,28 @@ namespace PeerChat.ViewModel
                 OnPropertyChanged(nameof(IsNotHoisting));
             }
         }
-        public bool IsNotHoisting => !IsHosting;
-
-        private CancellationTokenSource _cts;
+        public bool IsNotHoisting => !IsHosting; 
+         
+        private CancellationTokenSource _cts; 
+        private readonly MainVM _main;
         private readonly TcpClient _client;
 
+        private readonly NetworkService _service = new NetworkService();
+
         public ICommand HostCommand { get; }
-        public ICommand JoinCommand { get; }
+        public ICommand JoinCommand { get; } 
         public ICommand CancelCommand { get; }
 
-        private readonly MainVM _main;
-         
-        private readonly NetworkService _service = new NetworkService();
-        
         public ConnectionWindowVM(MainVM main)
         {
+            _main = main;
+
             HostCommand = new RelayCommand(() => _ = StartHosting());
             JoinCommand = new RelayCommand(() => _ = StartJoining());
             CancelCommand = new RelayCommand(CancelOperation);
 
-            _main = main;
-
             IPAddressText = GetLocalIPAddress(); ;
-        }
-
+        } 
         private async Task StartHosting()
         {
             if (!ValidateAll()) return;
@@ -152,9 +150,8 @@ namespace PeerChat.ViewModel
                 TcpClient client = await _service.StartHostAsync(portNumber, _cts.Token);
 
                 StatusMessage = "Connected";
-
-                // ❗ PASS NAME TO CHAT VM
-                _main.CurrentView = new ChatWindowVM(DisplayUserName, _main, client);
+                
+                _main.CurrentView = new ChatWindowVM(DisplayUserName, IPAddressText, _main, client);
             }
             catch (OperationCanceledException)
             {
@@ -197,8 +194,7 @@ namespace PeerChat.ViewModel
 
                 StatusMessage = "Connected";
 
-                // ❗ PASS NAME TO CHAT VM
-                _main.CurrentView = new ChatWindowVM(DisplayUserName, _main, client);
+                _main.CurrentView = new ChatWindowVM(DisplayUserName,IPAddressText, _main, client);
             }
             catch (Exception ex)
             {
@@ -258,7 +254,7 @@ namespace PeerChat.ViewModel
             {
                 StatusMessage = "Port required";
                 return false;
-            } 
+            }
             return true;
         }
 

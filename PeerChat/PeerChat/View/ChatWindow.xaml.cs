@@ -24,7 +24,7 @@ namespace PeerChat.View
         public ChatWindow()
         {
             InitializeComponent();
-            Loaded += ChatWindow_Loaded;
+            Loaded += ChatWindow_Loaded; 
         }
 
         private void ChatWindow_Loaded(object sender, RoutedEventArgs e)

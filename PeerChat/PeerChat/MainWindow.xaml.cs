@@ -1,3 +1,4 @@
+using PeerChat.ViewModel;
 using System;
 using System.Net;
 using System.Net.Sockets;
@@ -11,6 +12,8 @@ namespace PeerChat
         public MainWindow()
         {
             InitializeComponent();
+
+            //Application.Current.MainWindow.Title = WindowTitle;
         }
     }
 }

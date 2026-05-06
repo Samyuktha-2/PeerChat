@@ -11,6 +11,7 @@ namespace PeerChat.Helpers
 {
     public class BoolToVisibilityConverter : IValueConverter
     {
+        //true -> Visible
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (value is bool isVisible && isVisible)

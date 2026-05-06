@@ -22,8 +22,8 @@ namespace PeerChat.Services
             header[3] = (byte)((length >> 8) & 0xFF);
             header[4] = (byte)(length & 0xFF);
 
-            await stream.WriteAsync(header, 0, 5);
-            await stream.WriteAsync(payload, 0, payload.Length);
+            await stream.WriteAsync(header, 0, 5);  //sends header
+            await stream.WriteAsync(payload, 0, payload.Length);  //sends payload ie data
         }
 
         public static async Task<(byte type, byte[] payload)> ReceiveFrameAsync(NetworkStream stream)

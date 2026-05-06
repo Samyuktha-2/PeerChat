@@ -7,8 +7,7 @@ namespace PeerChat.Helpers
 {
     public class InverseBoolToVisibilityConverter : IValueConverter
     {
-        // true → Collapsed
-        // false → Visible
+        // false -> Visible
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (value is bool flag)
@@ -16,8 +15,7 @@ namespace PeerChat.Helpers
 
             return Visibility.Visible;
         }
-
-        // Not required
+        
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             throw new NotImplementedException();

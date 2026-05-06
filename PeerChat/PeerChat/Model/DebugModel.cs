@@ -8,9 +8,9 @@ namespace PeerChat.Model
 {
     public class DebugModel
     {
-        public string User { get; set; }
+        public DateTime GetDateTime { get; set; } 
         public string Direction { get; set; }
         public string ContentType { get; set; }
-        public byte[] PayloadBytes { get; set; }
+        public string ContentSize { get; set; }
     }
 }

@@ -26,9 +26,7 @@ namespace PeerChat.ViewModel
             ConnectionWindow = new ConnectionWindowVM(this);  
 
             CurrentView =  new ConnectionWindow();
-        }
-
-        private bool isDark = false;
+        } 
         private object currentView;
 
         

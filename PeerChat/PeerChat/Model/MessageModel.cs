@@ -11,6 +11,8 @@ namespace PeerChat.Model
 {
     public class MessageModel : BaseVM
     { 
+        public DateTime GetDateTime { get;set;}
+
         public string Text { get; set; }
         public bool IsSentByMe { get; set; }
 

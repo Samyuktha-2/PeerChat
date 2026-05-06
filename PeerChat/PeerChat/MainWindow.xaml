@@ -16,6 +16,7 @@
     <Window.Resources>
         <helpers:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
     </Window.Resources>
+    
     <Grid>
         <ContentControl Content="{Binding CurrentView}"/>
         
