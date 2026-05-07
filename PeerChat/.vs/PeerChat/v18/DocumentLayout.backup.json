@@ -3,32 +3,24 @@
   "WorkspaceRootPath": "D:\\PeerChat\\PeerChat\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{B0B87753-85F5-4F06-9025-E7681E725826}|PeerChat\\PeerChat.csproj|d:\\peerchat\\peerchat\\peerchat\\view\\chatwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
-      "RelativeMoniker": "D:0:0:{B0B87753-85F5-4F06-9025-E7681E725826}|PeerChat\\PeerChat.csproj|solutionrelative:peerchat\\view\\chatwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{B0B87753-85F5-4F06-9025-E7681E725826}|PeerChat\\PeerChat.csproj|d:\\peerchat\\peerchat\\peerchat\\viewmodel\\chatwindowvm.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{B0B87753-85F5-4F06-9025-E7681E725826}|PeerChat\\PeerChat.csproj|solutionrelative:peerchat\\viewmodel\\chatwindowvm.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{B0B87753-85F5-4F06-9025-E7681E725826}|PeerChat\\PeerChat.csproj|d:\\peerchat\\peerchat\\peerchat\\theme\\lighttheme.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
-      "RelativeMoniker": "D:0:0:{B0B87753-85F5-4F06-9025-E7681E725826}|PeerChat\\PeerChat.csproj|solutionrelative:peerchat\\theme\\lighttheme.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+      "AbsoluteMoniker": "D:0:0:{B0B87753-85F5-4F06-9025-E7681E725826}|PeerChat\\PeerChat.csproj|d:\\peerchat\\peerchat\\peerchat\\view\\videoview.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{B0B87753-85F5-4F06-9025-E7681E725826}|PeerChat\\PeerChat.csproj|solutionrelative:peerchat\\view\\videoview.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{B0B87753-85F5-4F06-9025-E7681E725826}|PeerChat\\PeerChat.csproj|d:\\peerchat\\peerchat\\peerchat\\viewmodel\\connectionwindowvm.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{B0B87753-85F5-4F06-9025-E7681E725826}|PeerChat\\PeerChat.csproj|solutionrelative:peerchat\\viewmodel\\connectionwindowvm.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{B0B87753-85F5-4F06-9025-E7681E725826}|PeerChat\\PeerChat.csproj|d:\\peerchat\\peerchat\\peerchat\\model\\messagemodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{B0B87753-85F5-4F06-9025-E7681E725826}|PeerChat\\PeerChat.csproj|solutionrelative:peerchat\\model\\messagemodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{B0B87753-85F5-4F06-9025-E7681E725826}|PeerChat\\PeerChat.csproj|d:\\peerchat\\peerchat\\peerchat\\view\\chatwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{B0B87753-85F5-4F06-9025-E7681E725826}|PeerChat\\PeerChat.csproj|solutionrelative:peerchat\\view\\chatwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{B0B87753-85F5-4F06-9025-E7681E725826}|PeerChat\\PeerChat.csproj|d:\\peerchat\\peerchat\\peerchat\\services\\messageprotocol.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{B0B87753-85F5-4F06-9025-E7681E725826}|PeerChat\\PeerChat.csproj|solutionrelative:peerchat\\services\\messageprotocol.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{B0B87753-85F5-4F06-9025-E7681E725826}|PeerChat\\PeerChat.csproj|d:\\peerchat\\peerchat\\peerchat\\model\\usermodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{B0B87753-85F5-4F06-9025-E7681E725826}|PeerChat\\PeerChat.csproj|solutionrelative:peerchat\\model\\usermodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{B0B87753-85F5-4F06-9025-E7681E725826}|PeerChat\\PeerChat.csproj|D:\\PeerChat\\PeerChat\\peerchat\\model\\messagemodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B0B87753-85F5-4F06-9025-E7681E725826}|PeerChat\\PeerChat.csproj|solutionrelative:peerchat\\model\\messagemodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -43,77 +35,51 @@
             {
               "$type": "Document",
               "DocumentIndex": 2,
-              "Title": "LightTheme.xaml",
-              "DocumentMoniker": "D:\\PeerChat\\PeerChat\\PeerChat\\Theme\\LightTheme.xaml",
-              "RelativeDocumentMoniker": "PeerChat\\Theme\\LightTheme.xaml",
-              "ToolTip": "D:\\PeerChat\\PeerChat\\PeerChat\\Theme\\LightTheme.xaml",
-              "RelativeToolTip": "PeerChat\\Theme\\LightTheme.xaml",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
-              "WhenOpened": "2026-05-03T12:51:01.735Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "ChatWindowVM.cs",
-              "DocumentMoniker": "D:\\PeerChat\\PeerChat\\PeerChat\\ViewModel\\ChatWindowVM.cs",
-              "RelativeDocumentMoniker": "PeerChat\\ViewModel\\ChatWindowVM.cs",
-              "ToolTip": "D:\\PeerChat\\PeerChat\\PeerChat\\ViewModel\\ChatWindowVM.cs",
-              "RelativeToolTip": "PeerChat\\ViewModel\\ChatWindowVM.cs",
-              "ViewState": "AgIAAEMAAAAAAAAAAAAkwFAAAAAbAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-05-03T10:27:23.071Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "UserModel.cs",
-              "DocumentMoniker": "D:\\PeerChat\\PeerChat\\PeerChat\\Model\\UserModel.cs",
-              "RelativeDocumentMoniker": "PeerChat\\Model\\UserModel.cs",
-              "ToolTip": "D:\\PeerChat\\PeerChat\\PeerChat\\Model\\UserModel.cs",
-              "RelativeToolTip": "PeerChat\\Model\\UserModel.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAaAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-05-03T10:26:58.419Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
               "Title": "ChatWindow.xaml",
               "DocumentMoniker": "D:\\PeerChat\\PeerChat\\PeerChat\\View\\ChatWindow.xaml",
               "RelativeDocumentMoniker": "PeerChat\\View\\ChatWindow.xaml",
               "ToolTip": "D:\\PeerChat\\PeerChat\\PeerChat\\View\\ChatWindow.xaml",
               "RelativeToolTip": "PeerChat\\View\\ChatWindow.xaml",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
-              "WhenOpened": "2026-05-03T09:41:54.058Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "MessageProtocol.cs",
-              "DocumentMoniker": "D:\\PeerChat\\PeerChat\\PeerChat\\Services\\MessageProtocol.cs",
-              "RelativeDocumentMoniker": "PeerChat\\Services\\MessageProtocol.cs",
-              "ToolTip": "D:\\PeerChat\\PeerChat\\PeerChat\\Services\\MessageProtocol.cs",
-              "RelativeToolTip": "PeerChat\\Services\\MessageProtocol.cs",
-              "ViewState": "AgIAAB4AAAAAAAAAAAAYwCcAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-05-03T12:41:02.861Z",
+              "WhenOpened": "2026-05-07T17:56:38.932Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 3,
-              "Title": "ConnectionWindowVM.cs",
-              "DocumentMoniker": "D:\\PeerChat\\PeerChat\\PeerChat\\ViewModel\\ConnectionWindowVM.cs",
-              "RelativeDocumentMoniker": "PeerChat\\ViewModel\\ConnectionWindowVM.cs",
-              "ToolTip": "D:\\PeerChat\\PeerChat\\PeerChat\\ViewModel\\ConnectionWindowVM.cs",
-              "RelativeToolTip": "PeerChat\\ViewModel\\ConnectionWindowVM.cs",
-              "ViewState": "AgIAAJEAAAAAAAAAAAAUwJ4AAAANAAAAAAAAAA==",
+              "Title": "MessageProtocol.cs",
+              "DocumentMoniker": "D:\\PeerChat\\PeerChat\\PeerChat\\Services\\MessageProtocol.cs",
+              "RelativeDocumentMoniker": "PeerChat\\Services\\MessageProtocol.cs",
+              "ToolTip": "D:\\PeerChat\\PeerChat\\PeerChat\\Services\\MessageProtocol.cs",
+              "RelativeToolTip": "PeerChat\\Services\\MessageProtocol.cs",
+              "ViewState": "AgIAAAYAAAAAAAAAAAAAACIAAAANAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-05-03T10:30:29.774Z",
+              "WhenOpened": "2026-05-07T17:49:59.476Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "VideoView.xaml",
+              "DocumentMoniker": "D:\\PeerChat\\PeerChat\\PeerChat\\View\\VideoView.xaml",
+              "RelativeDocumentMoniker": "PeerChat\\View\\VideoView.xaml",
+              "ToolTip": "D:\\PeerChat\\PeerChat\\PeerChat\\View\\VideoView.xaml",
+              "RelativeToolTip": "PeerChat\\View\\VideoView.xaml",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
+              "WhenOpened": "2026-05-07T17:43:49.466Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "ChatWindowVM.cs",
+              "DocumentMoniker": "D:\\PeerChat\\PeerChat\\PeerChat\\ViewModel\\ChatWindowVM.cs",
+              "RelativeDocumentMoniker": "PeerChat\\ViewModel\\ChatWindowVM.cs",
+              "ToolTip": "D:\\PeerChat\\PeerChat\\PeerChat\\ViewModel\\ChatWindowVM.cs*",
+              "RelativeToolTip": "PeerChat\\ViewModel\\ChatWindowVM.cs*",
+              "ViewState": "AgIAAKIAAAAAAAAAAADgv3YAAAALAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-03T10:27:23.071Z",
               "EditorCaption": ""
             },
             {
@@ -124,10 +90,9 @@
               "RelativeDocumentMoniker": "PeerChat\\Model\\MessageModel.cs",
               "ToolTip": "D:\\PeerChat\\PeerChat\\PeerChat\\Model\\MessageModel.cs",
               "RelativeToolTip": "PeerChat\\Model\\MessageModel.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAAsAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-05-03T12:43:43.794Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-05-03T12:43:43.794Z"
             }
           ]
         }

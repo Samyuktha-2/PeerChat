@@ -1,26 +1,3 @@
-D:\PeerChat\PeerChat\PeerChat\obj\Debug\PeerChat.csproj.AssemblyReference.cache
-D:\PeerChat\PeerChat\PeerChat\obj\Debug\MainWindow.g.cs
-D:\PeerChat\PeerChat\PeerChat\obj\Debug\View\ConnectionWindow.g.cs
-D:\PeerChat\PeerChat\PeerChat\obj\Debug\App.g.cs
-D:\PeerChat\PeerChat\PeerChat\obj\Debug\GeneratedInternalTypeHelper.g.cs
-D:\PeerChat\PeerChat\PeerChat\obj\Debug\PeerChat_MarkupCompile.cache
-D:\PeerChat\PeerChat\PeerChat\obj\Debug\PeerChat_MarkupCompile.lref
-D:\PeerChat\PeerChat\PeerChat\bin\Debug\PeerChat.exe.config
-D:\PeerChat\PeerChat\PeerChat\bin\Debug\PeerChat.exe
-D:\PeerChat\PeerChat\PeerChat\bin\Debug\PeerChat.pdb
-D:\PeerChat\PeerChat\PeerChat\obj\Debug\App.baml
-D:\PeerChat\PeerChat\PeerChat\obj\Debug\MainWindow.baml
-D:\PeerChat\PeerChat\PeerChat\obj\Debug\Theme\DarkTheme.baml
-D:\PeerChat\PeerChat\PeerChat\obj\Debug\Theme\LightTheme.baml
-D:\PeerChat\PeerChat\PeerChat\obj\Debug\View\ConnectionWindow.baml
-D:\PeerChat\PeerChat\PeerChat\obj\Debug\PeerChat.g.resources
-D:\PeerChat\PeerChat\PeerChat\obj\Debug\PeerChat.Properties.Resources.resources
-D:\PeerChat\PeerChat\PeerChat\obj\Debug\PeerChat.csproj.GenerateResource.cache
-D:\PeerChat\PeerChat\PeerChat\obj\Debug\PeerChat.csproj.CoreCompileInputs.cache
-D:\PeerChat\PeerChat\PeerChat\obj\Debug\PeerChat.exe
-D:\PeerChat\PeerChat\PeerChat\obj\Debug\PeerChat.pdb
-D:\PeerChat\PeerChat\PeerChat\obj\Debug\View\ChatWindow.g.cs
-D:\PeerChat\PeerChat\PeerChat\obj\Debug\View\ChatWindow.baml
 C:\Users\OptiCheck\Desktop\Chat Application\PeerChat\PeerChat\obj\Debug\MainWindow.g.cs
 C:\Users\OptiCheck\Desktop\Chat Application\PeerChat\PeerChat\obj\Debug\View\ChatWindow.g.cs
 C:\Users\OptiCheck\Desktop\Chat Application\PeerChat\PeerChat\obj\Debug\View\ConnectionWindow.g.cs
@@ -46,3 +23,29 @@ C:\Users\OptiCheck\Desktop\Chat Application\PeerChat\PeerChat\obj\Debug\PeerChat
 C:\Users\OptiCheck\Desktop\Chat Application\PeerChat\PeerChat\obj\Debug\PeerChat.csproj.CoreCompileInputs.cache
 C:\Users\OptiCheck\Desktop\Chat Application\PeerChat\PeerChat\obj\Debug\PeerChat.csproj.CopyComplete
 C:\Users\OptiCheck\Desktop\Chat Application\PeerChat\PeerChat\obj\Debug\PeerChat.csprojAssemblyReference.cache
+D:\PeerChat\PeerChat\PeerChat\obj\Debug\PeerChat.csproj.AssemblyReference.cache
+D:\PeerChat\PeerChat\PeerChat\obj\Debug\Theme\LightTheme.baml
+D:\PeerChat\PeerChat\PeerChat\obj\Debug\MainWindow.g.cs
+D:\PeerChat\PeerChat\PeerChat\obj\Debug\View\ChatWindow.g.cs
+D:\PeerChat\PeerChat\PeerChat\obj\Debug\View\ConnectionWindow.g.cs
+D:\PeerChat\PeerChat\PeerChat\obj\Debug\View\VideoView.g.cs
+D:\PeerChat\PeerChat\PeerChat\obj\Debug\App.g.cs
+D:\PeerChat\PeerChat\PeerChat\obj\Debug\GeneratedInternalTypeHelper.g.cs
+D:\PeerChat\PeerChat\PeerChat\obj\Debug\PeerChat_MarkupCompile.cache
+D:\PeerChat\PeerChat\PeerChat\obj\Debug\PeerChat_MarkupCompile.lref
+D:\PeerChat\PeerChat\PeerChat\obj\Debug\App.baml
+D:\PeerChat\PeerChat\PeerChat\obj\Debug\MainWindow.baml
+D:\PeerChat\PeerChat\PeerChat\obj\Debug\Theme\DarkTheme.baml
+D:\PeerChat\PeerChat\PeerChat\obj\Debug\View\ChatWindow.baml
+D:\PeerChat\PeerChat\PeerChat\obj\Debug\View\ConnectionWindow.baml
+D:\PeerChat\PeerChat\PeerChat\obj\Debug\PeerChat.exe
+D:\PeerChat\PeerChat\PeerChat\obj\Debug\PeerChat.pdb
+D:\PeerChat\PeerChat\PeerChat\bin\Debug\PeerChat.exe.config
+D:\PeerChat\PeerChat\PeerChat\bin\Debug\PeerChat.exe
+D:\PeerChat\PeerChat\PeerChat\bin\Debug\PeerChat.pdb
+D:\PeerChat\PeerChat\PeerChat\obj\Debug\View\VideoView.baml
+D:\PeerChat\PeerChat\PeerChat\obj\Debug\PeerChat.g.resources
+D:\PeerChat\PeerChat\PeerChat\obj\Debug\PeerChat.Properties.Resources.resources
+D:\PeerChat\PeerChat\PeerChat\obj\Debug\PeerChat.csproj.GenerateResource.cache
+D:\PeerChat\PeerChat\PeerChat\obj\Debug\PeerChat.csproj.CoreCompileInputs.cache
+D:\PeerChat\PeerChat\PeerChat\obj\Debug\PeerChat.csproj.Up2Date

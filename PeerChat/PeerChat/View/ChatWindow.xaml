@@ -124,11 +124,7 @@
         <helpers:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
         <helpers:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
         <helpers:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter" />
-
-        <!--Application.Current.MainWindow.Title = ChatWindowVM.WindowTitle;-->
-
         
-
     </UserControl.Resources>
     
 
@@ -156,7 +152,7 @@
                     Height="35"
                     Style="{StaticResource IconButtonStyle}"
                     Width="35">
-                <Image Source="/Images/conversation.jpg"
+                <Image Source="/Images/conversation.png"
                        Width="20"
                        Height="20" />
             </Button>
@@ -167,7 +163,7 @@
                         Style="{DynamicResource IconButtonStyle}"
                         Command="{Binding ProfileClickCommand}"
                         Height="35">
-                    <Image Source="/Images/user.jpg"
+                    <Image Source="/Images/user.png"
                            Width="30"
                            Height="20" />
                 </Button>
@@ -385,11 +381,8 @@
                                                         <Border CornerRadius="10"
                                                                 ClipToBounds="True">
 
-                                                            <MediaElement Source="{Binding VideoPath}"
-                                                                          Stretch="UniformToFill"
-                                                                          LoadedBehavior="Manual"
-                                                                          UnloadedBehavior="Stop"
-                                                                          IsMuted="True" />
+                                                            <Image Source="{Binding VideoThumbnail}"
+                                                                   Stretch="UniformToFill" />
                                                         </Border>
 
                                                         <!-- DARK OVERLAY -->
@@ -476,7 +469,7 @@
                                     Margin="150 0 0 5"
                                     Style="{StaticResource IconButtonStyle}"
                                     Command="{Binding SendCommand}">
-                                <Image Source="/Images/send.jpg"
+                                <Image Source="/Images/send.png"
                                        Width="20"
                                        Height="20" />
                             </Button>
@@ -504,7 +497,7 @@
                                 Margin="5"
                                 Style="{StaticResource IconButtonStyle}"
                                 Command="{Binding ShowAttachmentMenuCommand}">
-                            <Image Source="/Images/AttachmentIcon.jpg"
+                            <Image Source="/Images/AttachmentIcon.png"
                                    Width="20"
                                    Height="20" />
                         </Button>
@@ -538,6 +531,7 @@
                                             <TextBlock Text="Video" Margin="0 5" />
                                         </StackPanel>
                                     </Button>
+
                                 </StackPanel>
 
                             </Border>
@@ -566,7 +560,7 @@
                             Margin="5"
                             Style="{StaticResource IconButtonStyle}"
                             Command="{Binding SendCommand}">
-                        <Image Source="/Images/send.jpg"
+                        <Image Source="/Images/send.png"
                                Width="20"
                                Height="20" />
                     </Button>

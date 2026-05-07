@@ -80,6 +80,9 @@
     <Compile Include="View\ConnectionWindow.xaml.cs">
       <DependentUpon>ConnectionWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="View\VideoView.xaml.cs">
+      <DependentUpon>VideoView.xaml</DependentUpon>
+    </Compile>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -105,6 +108,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="View\ConnectionWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\VideoView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -136,19 +143,13 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\AttachmentIcon.jpg" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Images\user.jpg" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Images\conversation.jpg" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Images\send.jpg" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\video_placeholder.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\AttachmentIcon.png" />
+    <Resource Include="Images\conversation.png" />
+    <Resource Include="Images\send.png" />
+    <Resource Include="Images\user.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

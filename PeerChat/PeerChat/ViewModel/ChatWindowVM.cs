@@ -10,6 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
@@ -21,10 +22,16 @@ namespace PeerChat.ViewModel
 {
     public class ChatWindowVM : BaseVM
     {
+        private const int VideoChunkSize = 64 * 1024;
+        private const int VideoFileNameHeaderSize = 260;
+        private const int VideoSizeHeaderSize = 8;
+        private const byte VideoFrameType = 0x03;
+
         private TcpClient _client;
         private string _selectedUserName;
         private readonly MainVM _main;
         private readonly NetworkStream _stream;
+        private readonly SemaphoreSlim _sendLock = new SemaphoreSlim(1, 1);
         private string _peerName;
 
         private string _outGoingMessage;
@@ -33,31 +40,25 @@ namespace PeerChat.ViewModel
         private bool isDark = false;
         private string _peerIp;
 
-        private MemoryStream _videoStream;
-        private FileStream _tempFileStream;
-        private long _totalBytes;
-        private long _receivedBytes;
-        private string _videoFileName;
+        private FileStream _videoReceiveStream;
+        private long _videoTotalSize;
+        private long _videoReceivedBytes;
+        private int _receivedVideoChunkNumber;
         private string _tempFilePath;
         private MessageModel _currentVideoMessage;
-        public bool _isReceivingVideo = false;
+        private bool _isReceivingVideo;
         private bool _isPeerTyping;
          
         private bool _isConnected = true;
+        private bool _isSendingMessage;
         private string _peerStatus = "Online";
         private bool _isProfileMenuOpen;
         private string _myName;
         private string _windowTitle;
         private bool _isDebugEnabled;
-        private double _transferProgress;
-        private bool _isTransferCompleted;
-        private string _videoPath;
 
         public byte[] SelectedImageByte { get; set; }
         public string SelectedImageName { get; set; }
-
-        public string SelectedVideoName { get; set; }
-        public string SelectedVideoPath { get; set; }
 
         public string MyName
         {
@@ -86,7 +87,7 @@ namespace PeerChat.ViewModel
                 OnPropertyChanged(nameof(OutGoingMessage));
 
                 if (!string.IsNullOrWhiteSpace(value))
-                    SendTypingStatus(true);
+                    _ = SendTypingStatus(true);
             }
         }
         public bool IsAttachmentMenuOpen
@@ -168,34 +169,6 @@ namespace PeerChat.ViewModel
                 OnPropertyChanged(nameof(IsDebugEnabled));
             }
         }
-        public double TransferProgress
-        {
-            get => _transferProgress;
-            set
-            {
-                _transferProgress = value;
-                OnPropertyChanged(nameof(TransferProgress));
-            }
-        }
-        public bool IsTransferCompleted
-        {
-            get => _isTransferCompleted;
-            set
-            {
-                _isTransferCompleted = value;
-                OnPropertyChanged(nameof(IsTransferCompleted));
-            }
-        }
-        public string VideoPath
-        {
-            get => _videoPath;
-            set
-            {
-                _videoPath = value;
-                OnPropertyChanged(nameof(VideoPath));
-            }
-        }
-
         public ObservableCollection<UserModel> Users { get; set; } = new ObservableCollection<UserModel>();
         public ObservableCollection<MessageModel> Messages { get; set; } = new ObservableCollection<MessageModel>();
         public ObservableCollection<DebugModel> DebugLogs { get; set; } = new ObservableCollection<DebugModel>();
@@ -232,8 +205,6 @@ namespace PeerChat.ViewModel
 
             ImageCommand = new RelayCommand(() => _ = PickImage());
 
-            //VideoCommand = new RelayCommand(() => _ = PickVideo());
-
             ClearPreviewCommand = new RelayCommand(() =>
               {
                   ImagePreview = null;
@@ -241,20 +212,23 @@ namespace PeerChat.ViewModel
                   SelectedImageName = null;
               });
 
-            PlayVideoCommand = new RelayCommandT<string>(PlayVideo);
+            VideoCommand = new RelayCommand(() => _ = PickVideo());
+
+            PlayVideoCommand = new RelayCommandT<MessageModel>(PlayVideo);
 
             ProfileClickCommand = new RelayCommand(() =>
            {
                IsProfileMenuOpen = true;
            });
 
-            ThemeCommand = new RelayCommand(ChangeTheme); 
+            ThemeCommand = new RelayCommand(ChangeTheme);
+            LogoutCommand=new RelayCommand(()=>_= HandleLocalClosingAsync());
         }
 
         private async Task SendMyName()
         {
             byte[] data = Encoding.UTF8.GetBytes(MyName);
-            await MessageProtocol.SendFrameAsync(_stream, 0x06, data);
+            await SendFrameAsync(0x06, data);
         }
 
         private void StartRecieveLoop()
@@ -268,6 +242,13 @@ namespace PeerChat.ViewModel
                     while (true)
                     {
                         var (type, payload) = await MessageProtocol.ReceiveFrameAsync(stream);
+
+                        if (type == VideoFrameType)
+                        {
+                            await HandleVideoFrameAsync(payload);
+                            continue;
+                        }
+
                         System.Windows.Application.Current.Dispatcher.Invoke(() =>
                         {
                             if (type == 0x06)
@@ -322,59 +303,6 @@ namespace PeerChat.ViewModel
                                     AddLog(DateTime.Now, "Received", "Image", $"{payload.Length} bytes");
                                 }
                             }
-                            else if (type == 0x03) // video
-                            {
-                                using (var ms = new MemoryStream(payload))
-                                using (var reader = new BinaryReader(ms))
-                                {
-                                    // filename (260 bytes)
-                                    byte[] nameBytes = reader.ReadBytes(260);
-
-                                    string fileName = Encoding.UTF8.GetString(nameBytes).Replace("\0", "").Trim();
-
-                                    // filesize (8 bytes)
-                                    byte[] sizeBytes = reader.ReadBytes(8);
-
-                                    if (BitConverter.IsLittleEndian)
-                                        Array.Reverse(sizeBytes);
-
-                                    long totalSize = BitConverter.ToInt64(sizeBytes, 0);
-
-                                    // video bytes
-                                    byte[] videoBytes = reader.ReadBytes((int)(ms.Length - ms.Position));
-
-                                    // create temp playable file
-                                    string tempVideoPath = Path.Combine(Path.GetTempPath(), fileName);
-
-                                    File.WriteAllBytes(tempVideoPath, videoBytes);
-
-                                    Application.Current.Dispatcher.Invoke(() =>
-                                    {
-                                        Messages.Add(new MessageModel
-                                        {
-                                            GetDateTime = DateTime.Now,
-
-                                            Text = fileName,
-                                            FileName = fileName,
-
-                                            IsVideo = true,
-                                            IsSentByMe = false,
-
-                                            FileBytes = videoBytes,
-
-                                            VideoPath = tempVideoPath,
-
-                                            TransferProgress = 100,
-                                            IsTransferCompleted = true
-                                        });
-                                    });
-
-                                    AddLog(DateTime.Now,
-                                           "Received",
-                                           "Video",
-                                           $"{totalSize} bytes");
-                                }
-                            }
 
                             //typing status
                             if (type == 0x04)
@@ -406,17 +334,27 @@ namespace PeerChat.ViewModel
 
         private async Task SendMessage()
         {
-            if (!string.IsNullOrWhiteSpace(OutGoingMessage))
-            {
-                await SendTextMessage();
-            }
-
-            if (SelectedImageByte != null)
-            {
-                await SendImage();
+            if (_isSendingMessage)
                 return;
-            }
 
+            _isSendingMessage = true;
+
+            try
+            {
+                if (!string.IsNullOrWhiteSpace(OutGoingMessage))
+                {
+                    await SendTextMessage();
+                }
+
+                if (SelectedImageByte != null)
+                {
+                    await SendImage();
+                }
+            }
+            finally
+            {
+                _isSendingMessage = false;
+            }
         }
 
         private async Task SendTextMessage()
@@ -427,7 +365,7 @@ namespace PeerChat.ViewModel
             var msg = OutGoingMessage;
 
             byte[] data = Encoding.UTF8.GetBytes(msg);
-            await MessageProtocol.SendFrameAsync(_stream, 0x01, data);
+            await SendFrameAsync(0x01, data);
             AddLog(DateTime.Now, "Sent", "Text", $"{data.Length} bytes");
 
             Messages.Add(new MessageModel
@@ -468,21 +406,28 @@ namespace PeerChat.ViewModel
 
         private async Task SendImage()
         {
+            var imageBytes = SelectedImageByte;
+            var imageName = SelectedImageName;
+
+            if (imageBytes == null || string.IsNullOrWhiteSpace(imageName))
+                return;
+
             using (var ms = new MemoryStream())
             using (var writer = new BinaryWriter(ms))
             {
-                byte[] nameBytes = Encoding.UTF8.GetBytes(SelectedImageName);
+                byte[] nameBytes = Encoding.UTF8.GetBytes(imageName);
 
                 writer.Write(nameBytes.Length);
                 writer.Write(nameBytes);
 
-                writer.Write(SelectedImageByte);
+                writer.Write(imageBytes);
 
-                await MessageProtocol.SendFrameAsync(_stream, 0x02, ms.ToArray());
-                AddLog(DateTime.Now, "Sent", "Image", $"{SelectedImageByte.Length} bytes");
+                byte[] payload = ms.ToArray();
+                await SendFrameAsync(0x02, payload);
+                AddLog(DateTime.Now, "Sent", "Image", $"{payload.Length} bytes");
             }
 
-            using (var ms = new MemoryStream(SelectedImageByte))
+            using (var ms = new MemoryStream(imageBytes))
             {
                 var bitmap = new BitmapImage();
                 bitmap.BeginInit();
@@ -495,7 +440,7 @@ namespace PeerChat.ViewModel
                 {
                     GetDateTime = DateTime.Now,
                     Image = bitmap,
-                    FileName = SelectedImageName,
+                    FileName = imageName,
                     IsSentByMe = true
                 });
             }
@@ -509,95 +454,295 @@ namespace PeerChat.ViewModel
         {
             var dialog = new OpenFileDialog
             {
-                Filter = "Videos|*.mp4;*.avi;*.mkv"
+                Filter = "Video files (*.mp4;*.avi;*.mkv)|*.mp4;*.avi;*.mkv"
             };
 
-            if (dialog.ShowDialog() != true) return;
+            if (dialog.ShowDialog() != true)
+                return;
 
-            SelectedVideoName = Path.GetFileName(dialog.FileName);
-            SelectedVideoPath = dialog.FileName;
-
-            OnPropertyChanged(nameof(SelectedVideoName));
-            OnPropertyChanged(nameof(SelectedVideoPath));
-            await SendVideo();
+            await SendVideo(dialog.FileName);
         }
 
-        private async Task SendVideo()
+        private async Task SendVideo(string videoPath)
         {
-            if (string.IsNullOrEmpty(SelectedVideoPath))
+            if (!IsConnected || _client == null || !_client.Connected || string.IsNullOrWhiteSpace(videoPath))
                 return;
 
-            FileInfo fileInfo = new FileInfo(SelectedVideoPath);
+            var fileInfo = new FileInfo(videoPath);
+            var totalSize = fileInfo.Length;
+            var bytesSent = 0L;
+            var chunkNumber = 0;
 
-            //< 50MB
-            if (fileInfo.Length > 50 * 1024 * 1024)
+            var message = new MessageModel
             {
-                MessageBox.Show("Video exceeds 50 MB");
-                return;
+                GetDateTime = DateTime.Now,
+                Text = fileInfo.Name,
+                FileName = fileInfo.Name,
+                IsVideo = true,
+                IsSentByMe = true,
+                VideoPath = videoPath,
+                IsTransferCompleted = false,
+                TransferProgress = 0,
+                TransferStatus = $"0/{totalSize}"
+            };
+
+            Application.Current.Dispatcher.Invoke(() => Messages.Add(message));
+
+            var buffer = new byte[VideoChunkSize];
+
+            using (var fileStream = new FileStream(videoPath, FileMode.Open, FileAccess.Read, FileShare.Read, VideoChunkSize, true))
+            {
+                int bytesRead;
+                while ((bytesRead = await fileStream.ReadAsync(buffer, 0, buffer.Length)) > 0)
+                {
+                    chunkNumber++;
+
+                    byte[] payload;
+                    if (chunkNumber == 1)
+                    {
+                        payload = new byte[VideoFileNameHeaderSize + VideoSizeHeaderSize + bytesRead];
+                        WriteFileNameHeader(payload, 0, fileInfo.Name);
+                        WriteInt64BigEndian(payload, VideoFileNameHeaderSize, totalSize);
+                        Buffer.BlockCopy(buffer, 0, payload, VideoFileNameHeaderSize + VideoSizeHeaderSize, bytesRead);
+                    }
+                    else
+                    {
+                        payload = new byte[bytesRead];
+                        Buffer.BlockCopy(buffer, 0, payload, 0, bytesRead);
+                    }
+
+                    await SendFrameAsync(VideoFrameType, payload);
+
+                    bytesSent += bytesRead;
+                    UpdateVideoProgress(message, bytesSent, totalSize);
+                    AddLog(DateTime.Now, "Sent", "Video",
+                        $"Sent Video Chunk {chunkNumber} | {bytesRead} bytes | {bytesSent}/{totalSize}");
+                }
             }
 
-            var stream = _client.GetStream();
+            var thumbnail = await GenerateVideoThumbnailAsync(videoPath);
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                message.VideoThumbnail = thumbnail;
+                message.IsTransferCompleted = true;
+                message.TransferProgress = 100;
+                message.TransferStatus = $"{totalSize}/{totalSize}";
+            });
+        }
 
-            FileStream fs = new FileStream(SelectedVideoPath, FileMode.Open, FileAccess.Read);
-            MemoryStream ms = new MemoryStream();
+        private async Task HandleVideoFrameAsync(byte[] payload)
+        {
+            if (!_isReceivingVideo)
+            {
+                if (payload.Length < VideoFileNameHeaderSize + VideoSizeHeaderSize)
+                {
+                    AddLog(DateTime.Now, "Received", "Video", "Invalid first video chunk");
+                    return;
+                }
 
-            await fs.CopyToAsync(ms);
+                var fileName = ReadFileNameHeader(payload, 0);
+                _videoTotalSize = ReadInt64BigEndian(payload, VideoFileNameHeaderSize);
+                _videoReceivedBytes = 0;
+                _receivedVideoChunkNumber = 0;
+                _isReceivingVideo = true;
+                _tempFilePath = Path.GetTempFileName();
+                _videoReceiveStream = new FileStream(_tempFilePath, FileMode.Create, FileAccess.Write, FileShare.Read, VideoChunkSize, true);
 
-            byte[] videoBytes = ms.ToArray();
+                _currentVideoMessage = new MessageModel
+                {
+                    GetDateTime = DateTime.Now,
+                    Text = fileName,
+                    FileName = fileName,
+                    IsVideo = true,
+                    IsSentByMe = false,
+                    VideoPath = _tempFilePath,
+                    IsTransferCompleted = false,
+                    TransferProgress = 0,
+                    TransferStatus = $"0/{_videoTotalSize}"
+                };
 
-            byte[] payload = new byte[260 + 8 + videoBytes.Length];
+                Application.Current.Dispatcher.Invoke(() => Messages.Add(_currentVideoMessage));
 
-            byte[] nameBytes = Encoding.UTF8.GetBytes(SelectedVideoName);
+                var firstChunkSize = payload.Length - VideoFileNameHeaderSize - VideoSizeHeaderSize;
+                await WriteReceivedVideoChunkAsync(payload, VideoFileNameHeaderSize + VideoSizeHeaderSize, firstChunkSize);
+            }
+            else
+            {
+                await WriteReceivedVideoChunkAsync(payload, 0, payload.Length);
+            }
+        }
 
-            Array.Copy(nameBytes, payload, Math.Min(260, nameBytes.Length));
+        private async Task WriteReceivedVideoChunkAsync(byte[] payload, int offset, int count)
+        {
+            if (_videoReceiveStream == null || _currentVideoMessage == null)
+                return;
 
-            byte[] sizeBytes =
-                BitConverter.GetBytes(fileInfo.Length);
+            if (count > 0)
+                await _videoReceiveStream.WriteAsync(payload, offset, count);
+
+            _receivedVideoChunkNumber++;
+            _videoReceivedBytes += count;
+            UpdateVideoProgress(_currentVideoMessage, _videoReceivedBytes, _videoTotalSize);
+            AddLog(DateTime.Now, "Received", "Video",
+                $"Received Video Chunk {_receivedVideoChunkNumber} | {count} bytes | {_videoReceivedBytes}/{_videoTotalSize}");
+
+            if (_videoReceivedBytes >= _videoTotalSize)
+            {
+                await _videoReceiveStream.FlushAsync();
+                _videoReceiveStream.Dispose();
+                _videoReceiveStream = null;
+
+                var completedMessage = _currentVideoMessage;
+                var completedPath = _tempFilePath;
+
+                var thumbnail = await GenerateVideoThumbnailAsync(completedPath);
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    completedMessage.VideoThumbnail = thumbnail;
+                    completedMessage.VideoPath = completedPath;
+                    completedMessage.IsTransferCompleted = true;
+                    completedMessage.TransferProgress = 100;
+                    completedMessage.TransferStatus = $"{_videoTotalSize}/{_videoTotalSize}";
+                });
+
+                _currentVideoMessage = null;
+                _tempFilePath = null;
+                _videoTotalSize = 0;
+                _videoReceivedBytes = 0;
+                _receivedVideoChunkNumber = 0;
+                _isReceivingVideo = false;
+            }
+        }
+
+        private void UpdateVideoProgress(MessageModel message, long transferredBytes, long totalSize)
+        {
+            var progress = totalSize <= 0 ? 100 : transferredBytes * 100.0 / totalSize;
+
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                message.TransferProgress = progress;
+                message.TransferStatus = $"{transferredBytes}/{totalSize}";
+            });
+        }
+
+        private async Task<ImageSource> GenerateVideoThumbnailAsync(string videoPath)
+        {
+            try
+            {
+                var thumbnailTask = await Application.Current.Dispatcher.InvokeAsync(
+                    () => GenerateVideoThumbnailOnUiAsync(videoPath));
+
+                return await thumbnailTask;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        private async Task<ImageSource> GenerateVideoThumbnailOnUiAsync(string videoPath)
+        {
+            var player = new MediaPlayer { ScrubbingEnabled = true };
+            var opened = new TaskCompletionSource<bool>();
+
+            EventHandler openedHandler = null;
+            EventHandler<ExceptionEventArgs> failedHandler = null;
+
+            openedHandler = (s, e) => opened.TrySetResult(true);
+            failedHandler = (s, e) => opened.TrySetException(e.ErrorException);
+
+            player.MediaOpened += openedHandler;
+            player.MediaFailed += failedHandler;
+
+            try
+            {
+                player.Open(new Uri(videoPath, UriKind.Absolute));
+
+                var completed = await Task.WhenAny(opened.Task, Task.Delay(5000));
+                if (completed != opened.Task || !opened.Task.Result)
+                    return null;
+
+                player.Position = TimeSpan.FromMilliseconds(250);
+                await Task.Delay(250);
+
+                var width = player.NaturalVideoWidth > 0 ? player.NaturalVideoWidth : 250;
+                var height = player.NaturalVideoHeight > 0 ? player.NaturalVideoHeight : 160;
+
+                var drawingVisual = new DrawingVisual();
+                using (var drawingContext = drawingVisual.RenderOpen())
+                {
+                    drawingContext.DrawVideo(player, new Rect(0, 0, width, height));
+                }
+
+                var bitmap = new RenderTargetBitmap(width, height, 96, 96, PixelFormats.Pbgra32);
+                bitmap.Render(drawingVisual);
+                bitmap.Freeze();
+
+                return bitmap;
+            }
+            finally
+            {
+                player.MediaOpened -= openedHandler;
+                player.MediaFailed -= failedHandler;
+                player.Close();
+            }
+        }
+
+        private void PlayVideo(MessageModel message)
+        {
+            if (message == null || string.IsNullOrWhiteSpace(message.VideoPath) || !File.Exists(message.VideoPath))
+                return;
+
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = message.VideoPath,
+                UseShellExecute = true
+            });
+        } 
+
+        private static void WriteFileNameHeader(byte[] payload, int offset, string fileName)
+        {
+            var nameBytes = Encoding.UTF8.GetBytes(fileName ?? "video");
+            var length = Math.Min(nameBytes.Length, VideoFileNameHeaderSize);
+            Buffer.BlockCopy(nameBytes, 0, payload, offset, length);
+        }
+
+        private static string ReadFileNameHeader(byte[] payload, int offset)
+        {
+            var length = 0;
+            while (length < VideoFileNameHeaderSize && payload[offset + length] != 0)
+                length++;
+
+            var fileName = Encoding.UTF8.GetString(payload, offset, length);
+            return string.IsNullOrWhiteSpace(fileName) ? "received-video" : fileName;
+        }
+
+        private static void WriteInt64BigEndian(byte[] payload, int offset, long value)
+        {
+            var sizeBytes = BitConverter.GetBytes(value);
+            if (BitConverter.IsLittleEndian)
+                Array.Reverse(sizeBytes);
+
+            Buffer.BlockCopy(sizeBytes, 0, payload, offset, VideoSizeHeaderSize);
+        }
+
+        private static long ReadInt64BigEndian(byte[] payload, int offset)
+        {
+            var sizeBytes = new byte[VideoSizeHeaderSize];
+            Buffer.BlockCopy(payload, offset, sizeBytes, 0, VideoSizeHeaderSize);
 
             if (BitConverter.IsLittleEndian)
                 Array.Reverse(sizeBytes);
 
-            Array.Copy(sizeBytes, 0, payload, 260, 8);
-
-            // video bytes
-            Array.Copy(videoBytes, 0, payload, 268, videoBytes.Length);
-
-            await MessageProtocol.SendFrameAsync(stream, 0x03, payload);
-
-            Messages.Add(new MessageModel
-            {
-                GetDateTime = DateTime.Now,
-                Text = SelectedVideoName,
-                FileName = SelectedVideoName,
-                IsVideo = true,
-                IsSentByMe = true,
-                FileBytes = videoBytes,
-                VideoPath = SelectedVideoPath,
-                IsTransferCompleted = true,
-                TransferProgress = 100
-            });
-            AddLog(DateTime.Now, "Sent", "Video", $"{videoBytes.Length} bytes");
-
+            return BitConverter.ToInt64(sizeBytes, 0);
         }
-
-        private void PlayVideo(string path)
-        {
-            if (File.Exists(path))
-            {
-                Process.Start(new ProcessStartInfo
-                {
-                    FileName = path,
-                    UseShellExecute = true
-                });
-            }
-        } 
 
         public async Task SendTypingStatus(bool isTyping)
         {
             byte[] payload = new byte[1];
             payload[0] = isTyping ? (byte)1 : (byte)0;
 
-            await MessageProtocol.SendFrameAsync(_stream, 0x04, payload);
+            await SendFrameAsync(0x04, payload);
         }
 
         public async Task HandleLocalClosingAsync()
@@ -620,9 +765,23 @@ namespace PeerChat.ViewModel
         {
             try
             {
-                await MessageProtocol.SendFrameAsync(_stream, 0x05, Array.Empty<byte>());
+                await SendFrameAsync(0x05, Array.Empty<byte>());
             }
             catch { }
+        }
+
+        private async Task SendFrameAsync(byte type, byte[] payload)
+        {
+            await _sendLock.WaitAsync();
+
+            try
+            {
+                await MessageProtocol.SendFrameAsync(_stream, type, payload);
+            }
+            finally
+            {
+                _sendLock.Release();
+            }
         }
 
         private void HandlePeerDisconnected()
