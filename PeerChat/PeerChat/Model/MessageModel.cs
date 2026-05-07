@@ -23,10 +23,11 @@ namespace PeerChat.Model
         public string FileName { get; set; }
         public bool HasImage => Image != null;
 
-        public string VideoFilePath { get; set; }
-        public double Progress { get; set; }
-        public bool IsVideo { get; set; }
-        public bool IsCompleted { get; set; }
+        public bool IsVideo { get; set; } 
+        public string VideoPath { get; set; } 
+        public bool IsTransferCompleted { get; set; } 
+        public double TransferProgress { get; set; } 
+        public string TransferStatus { get; set; }
 
         public bool IsSystemMessage { get; set; }
 

@@ -4,14 +4,15 @@
         xmlns:view="clr-namespace:PeerChat.View" 
         xmlns:viewmodel="clr-namespace:PeerChat.ViewModel" 
         xmlns:helpers="clr-namespace:PeerChat.Helpers"
+        xmlns:viewmodel1="clr-namespace:peerchat.viewmodel"
         Title="PeerChat - Connect"
-        Height="560"
-        Width="620"
+        Height="800"
+        Width="700"
         WindowStartupLocation="CenterScreen"
         Background="{DynamicResource BackgroundBrush}"
         WindowState="Maximized">
     <Window.DataContext>
-        <viewmodel:MainVM />
+        <viewmodel1:MainVM />
     </Window.DataContext>
     <Window.Resources>
         <helpers:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>

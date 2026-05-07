@@ -1,15 +1,12 @@
-﻿using PeerChat.Command;
-using PeerChat.View;
-using System;
-using System.Windows;
-using System.Windows.Input;
+﻿using PeerChat.View;
+using PeerChat.ViewModel;
 
-namespace PeerChat.ViewModel
+namespace peerchat.viewmodel
 {
     public class MainVM : BaseVM
     {
         public ConnectionWindowVM ConnectionWindow { get; set; }
-        public ChatWindowVM ChatWindow { get; set; } 
+        public ChatWindowVM ChatWindow { get; set; }
 
         public object CurrentView
         {
@@ -23,12 +20,10 @@ namespace PeerChat.ViewModel
 
         public MainVM()
         {
-            ConnectionWindow = new ConnectionWindowVM(this);  
+            ConnectionWindow = new ConnectionWindowVM(this);
 
-            CurrentView =  new ConnectionWindow();
-        } 
+            CurrentView = new ConnectionWindow();
+        }
         private object currentView;
-
-        
     }
 }

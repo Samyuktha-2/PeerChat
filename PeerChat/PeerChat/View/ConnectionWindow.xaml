@@ -10,6 +10,7 @@
              d:DesignWidth="800">
     <UserControl.Resources>
         <helpers:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+        
     </UserControl.Resources>
     <!-- Center container -->
     <Grid HorizontalAlignment="Center"
@@ -93,20 +94,20 @@
                                FontSize="12"
                                Margin="5 0 0 3"
                                Foreground="{DynamicResource TextSecondaryBrush}" />
-
-                    <Border CornerRadius="10"
-                            Background="{DynamicResource SurfaceBrush}">
-                        <TextBox Text="{Binding ConnectionWindow.Port, UpdateSourceTrigger=PropertyChanged}"
-                                 BorderThickness="0"
-                                 Background="Transparent"
-                                 Padding="10"
-                                 CaretBrush="{DynamicResource TextPrimaryBrush}"
-                                 FontSize="14"
-                                 Foreground="{DynamicResource TextPrimaryBrush}" />
-                    </Border>
+ 
+                        <Border CornerRadius="10"
+                                Background="{DynamicResource SurfaceBrush}">
+                            <TextBox Text="{Binding ConnectionWindow.Port, UpdateSourceTrigger=PropertyChanged}"
+                                     BorderThickness="0"
+                                     Background="Transparent"
+                                     Padding="10"
+                                     CaretBrush="{DynamicResource TextPrimaryBrush}"
+                                     FontSize="14"
+                                     Foreground="{DynamicResource TextPrimaryBrush}" />
+                        </Border> 
                 </StackPanel>
 
-                <!--<StackPanel Margin="0 8"
+                <StackPanel Margin="0 8"
                             Orientation="Horizontal">
                     <TextBlock Text="Choose Mode"
                                FontSize="12"
@@ -114,14 +115,15 @@
                                Foreground="{DynamicResource TextSecondaryBrush}" />
                  
                     <RadioButton Content="Host"
-                                 IsChecked="{Binding IsHost, Mode=TwoWay}"
+                                 IsChecked="{Binding ConnectionWindow.IsHost}"
                                  Margin="30 1 0 3"
                                  GroupName="Mode" />
                     <RadioButton Content="Client"
-                                 IsChecked="{Binding IsClient, Mode=TwoWay}" 
+                                 IsChecked="{Binding ConnectionWindow.IsClient}" 
                                  Margin="30 1 0 3" 
                                  GroupName="Mode"/>
-                </StackPanel>-->
+                    
+                </StackPanel>
 
                 <TextBlock Text="{Binding ConnectionWindow.StatusMessage}"
                            Foreground="{DynamicResource TextPrimaryBrush}"
@@ -135,13 +137,12 @@
                              Visibility="{Binding ConnectionWindow.IsWaiting, Converter={StaticResource BoolToVisibilityConverter}}" />
 
                 <!-- Buttons -->
-                <StackPanel Margin="0 20 0 0" 
+                <StackPanel Margin="0 20 0 0"  Orientation="Horizontal"
                             HorizontalAlignment="Center">
-                    <StackPanel Orientation="Horizontal"
-                                HorizontalAlignment="Center">
+                     
                         
-                        <Button Content="Host"
-                                Command="{Binding ConnectionWindow.HostCommand}"
+                        <Button Content="Connect"
+                                Command="{Binding ConnectionWindow.JoinCommand}"
                                 Width="110"
                                 Height="35"
                                 FontSize="18"
@@ -163,8 +164,8 @@
                             </Button.Template>
                         </Button>
 
-                        <Button Content="Join"
-                                Command="{Binding ConnectionWindow.JoinCommand}"
+                        <Button Content="Disconnect"
+                                Command="{Binding ConnectionWindow.CancelCommand}"
                                 Width="110"
                                 Height="35"
                                 FontSize="18"
@@ -184,36 +185,8 @@
                                 </ControlTemplate>
                             </Button.Template>
                         </Button>
-                    </StackPanel>
-
-                    <StackPanel HorizontalAlignment="Center">
-                        <Button Content="Cancel"
-                                Command="{Binding ConnectionWindow.CancelCommand}"
-                                Width="110"
-                                Height="35"
-                                FontSize="18"
-                                Margin="5"
-                                Foreground="{DynamicResource TextPrimaryBrush}"
-                                FontWeight="SemiBold"
-                                Background="{DynamicResource PrimaryBrush}"
-                                BorderThickness="0"
-                                Cursor="Hand">
-
-                            <Button.Template>
-                                <ControlTemplate TargetType="Button">
-                                    <Border Background="{TemplateBinding Background}"
-                                            CornerRadius="12">
-                                        <ContentPresenter HorizontalAlignment="Center"
-                                                          VerticalAlignment="Center" />
-                                    </Border>
-                                </ControlTemplate>
-                            </Button.Template>
-                        </Button>
-                    </StackPanel>
-
-                    
-                </StackPanel>
-
+                    </StackPanel> 
+                
             </StackPanel>
         </Border>
     </Grid>

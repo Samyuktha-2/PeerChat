@@ -36,8 +36,7 @@ namespace PeerChat.Command
             add { CommandManager.RequerySuggested += value; }
             remove { CommandManager.RequerySuggested -= value; }
         }
-
-        // Optional: manually force re-evaluation
+         
         public void RaiseCanExecuteChanged()
         {
             CommandManager.InvalidateRequerySuggested();

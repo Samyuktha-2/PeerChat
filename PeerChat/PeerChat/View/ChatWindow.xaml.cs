@@ -64,7 +64,21 @@ namespace PeerChat.View
             };
 
             window.ShowDialog();
+        } 
+
+        private async void MessageBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (DataContext is ChatWindowVM vm)
+                {
+                    await vm.SendTypingStatus(false);
+                }
+            }
+            catch(Exception ex)
+            {
+
+            }
         }
-         
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.Win32;
+using peerchat.viewmodel;
 using PeerChat.Command;
 using PeerChat.Model;
 using PeerChat.Services;
@@ -25,12 +26,11 @@ namespace PeerChat.ViewModel
         private readonly MainVM _main;
         private readonly NetworkStream _stream;
         private string _peerName;
+
         private string _outGoingMessage;
         private bool _isAttachmentMenuOpen;
         private ImageSource _imagePreview;
-        //private string _videoPreviewPath;
         private bool isDark = false;
-        private string _myIp;
         private string _peerIp;
 
         private MemoryStream _videoStream;
@@ -42,16 +42,16 @@ namespace PeerChat.ViewModel
         private MessageModel _currentVideoMessage;
         public bool _isReceivingVideo = false;
         private bool _isPeerTyping;
-
-        public DispatcherTimer _typingHideTimer;
-        public DispatcherTimer _typingStopTimer;
-        private DateTime _lastTypingSent = DateTime.MinValue;
+         
         private bool _isConnected = true;
         private string _peerStatus = "Online";
         private bool _isProfileMenuOpen;
         private string _myName;
-        private string _windowTitle; 
+        private string _windowTitle;
         private bool _isDebugEnabled;
+        private double _transferProgress;
+        private bool _isTransferCompleted;
+        private string _videoPath;
 
         public byte[] SelectedImageByte { get; set; }
         public string SelectedImageName { get; set; }
@@ -84,7 +84,9 @@ namespace PeerChat.ViewModel
             {
                 _outGoingMessage = value;
                 OnPropertyChanged(nameof(OutGoingMessage));
-                HandleTyping();
+
+                if (!string.IsNullOrWhiteSpace(value))
+                    SendTypingStatus(true);
             }
         }
         public bool IsAttachmentMenuOpen
@@ -166,28 +168,56 @@ namespace PeerChat.ViewModel
                 OnPropertyChanged(nameof(IsDebugEnabled));
             }
         }
+        public double TransferProgress
+        {
+            get => _transferProgress;
+            set
+            {
+                _transferProgress = value;
+                OnPropertyChanged(nameof(TransferProgress));
+            }
+        }
+        public bool IsTransferCompleted
+        {
+            get => _isTransferCompleted;
+            set
+            {
+                _isTransferCompleted = value;
+                OnPropertyChanged(nameof(IsTransferCompleted));
+            }
+        }
+        public string VideoPath
+        {
+            get => _videoPath;
+            set
+            {
+                _videoPath = value;
+                OnPropertyChanged(nameof(VideoPath));
+            }
+        }
 
         public ObservableCollection<UserModel> Users { get; set; } = new ObservableCollection<UserModel>();
         public ObservableCollection<MessageModel> Messages { get; set; } = new ObservableCollection<MessageModel>();
         public ObservableCollection<DebugModel> DebugLogs { get; set; } = new ObservableCollection<DebugModel>();
 
         public ICommand SendCommand { get; }
-        public ICommand ShowAttachmentMenuCommand { get; } 
+        public ICommand ShowAttachmentMenuCommand { get; }
         public ICommand ImageCommand { get; }
         public ICommand VideoCommand { get; }
         public ICommand ClearPreviewCommand { get; }
         public ICommand PlayVideoCommand { get; }
         public ICommand ProfileClickCommand { get; }
         public ICommand ThemeCommand { get; }
+        public ICommand LogoutCommand { get; }
 
-        public ChatWindowVM(string myName,string peerIp, MainVM main, TcpClient client)
+        public ChatWindowVM(string myName, string peerIp, MainVM main, TcpClient client)
         {
             MyName = myName;
             _main = main;
             _client = client;
             _stream = _client.GetStream();
             _peerIp = peerIp;
-             
+
             Users.Add(new UserModel { UserName = MyName });
 
             StartRecieveLoop();
@@ -202,7 +232,7 @@ namespace PeerChat.ViewModel
 
             ImageCommand = new RelayCommand(() => _ = PickImage());
 
-            VideoCommand = new RelayCommand(() => _ = PickVideo());
+            //VideoCommand = new RelayCommand(() => _ = PickVideo());
 
             ClearPreviewCommand = new RelayCommand(() =>
               {
@@ -218,20 +248,7 @@ namespace PeerChat.ViewModel
                IsProfileMenuOpen = true;
            });
 
-            ThemeCommand = new RelayCommand(ChangeTheme);
-
-
-
-            _typingStopTimer = new DispatcherTimer
-            {
-                Interval = TimeSpan.FromSeconds(1.5)
-            };
-            _typingStopTimer.Tick += async (s, e) =>
-            {
-                _typingStopTimer.Stop();
-                await SendTypingStatus(false);
-            };
-
+            ThemeCommand = new RelayCommand(ChangeTheme); 
         }
 
         private async Task SendMyName()
@@ -252,9 +269,9 @@ namespace PeerChat.ViewModel
                     {
                         var (type, payload) = await MessageProtocol.ReceiveFrameAsync(stream);
                         System.Windows.Application.Current.Dispatcher.Invoke(() =>
-                        { 
+                        {
                             if (type == 0x06)
-                            {  
+                            {
                                 string text = Encoding.UTF8.GetString(payload);
                                 _peerName = text;
                                 SelectedUserName = text;
@@ -273,7 +290,7 @@ namespace PeerChat.ViewModel
                                     IsSentByMe = false
                                 });
                                 AddLog(DateTime.Now, "Received", "Text", $"{payload.Length} bytes");
-                            } 
+                            }
                             else if (type == 0x02) //image
                             {
                                 using (var ms = new MemoryStream(payload))
@@ -304,103 +321,58 @@ namespace PeerChat.ViewModel
                                     }
                                     AddLog(DateTime.Now, "Received", "Image", $"{payload.Length} bytes");
                                 }
-                            } 
-                            else if (type == 0x03) //video
+                            }
+                            else if (type == 0x03) // video
                             {
                                 using (var ms = new MemoryStream(payload))
                                 using (var reader = new BinaryReader(ms))
                                 {
-                                    if (!_isReceivingVideo)
-                                    {
-                                        _isReceivingVideo = true;
+                                    // filename (260 bytes)
+                                    byte[] nameBytes = reader.ReadBytes(260);
 
-                                        byte[] nameBytes = reader.ReadBytes(260);
-                                        string rawName = Encoding.UTF8.GetString(nameBytes);
+                                    string fileName = Encoding.UTF8.GetString(nameBytes).Replace("\0", "").Trim();
 
-                                        _videoFileName = new string(rawName
-                                            .Where(c => !Path.GetInvalidFileNameChars().Contains(c))
-                                            .ToArray())
-                                            .Trim();
+                                    // filesize (8 bytes)
+                                    byte[] sizeBytes = reader.ReadBytes(8);
 
-                                        byte[] sizeBytes = reader.ReadBytes(8);
-                                        if (BitConverter.IsLittleEndian)
-                                            Array.Reverse(sizeBytes);
+                                    if (BitConverter.IsLittleEndian)
+                                        Array.Reverse(sizeBytes);
 
-                                        _totalBytes = BitConverter.ToInt64(sizeBytes, 0);
+                                    long totalSize = BitConverter.ToInt64(sizeBytes, 0);
 
-                                        // create storage
-                                        if (_totalBytes > 50 * 1024 * 1024)
-                                        {
-                                            _tempFilePath = Path.GetTempFileName();
-                                            _tempFileStream = new FileStream(_tempFilePath, FileMode.Create, FileAccess.Write);
-                                        }
-                                        else
-                                        {
-                                            _videoStream = new MemoryStream();
-                                        }
+                                    // video bytes
+                                    byte[] videoBytes = reader.ReadBytes((int)(ms.Length - ms.Position));
 
-                                        _receivedBytes = 0;
+                                    // create temp playable file
+                                    string tempVideoPath = Path.Combine(Path.GetTempPath(), fileName);
 
-                                        _currentVideoMessage = new MessageModel
-                                        {
-                                            GetDateTime = DateTime.Now,
-                                            IsVideo = true,
-                                            Progress = 0,
-                                            IsCompleted = false,
-                                            IsSentByMe = false
-                                        };
-
-                                        Application.Current.Dispatcher.Invoke(() =>
-                                        {
-                                            Messages.Add(_currentVideoMessage);
-                                        });
-                                    }
-
-                                    byte[] chunk = reader.ReadBytes((int)(ms.Length - ms.Position));
-
-                                    if (_videoStream != null)
-                                        _videoStream.Write(chunk, 0, chunk.Length);
-                                    else
-                                        _tempFileStream.Write(chunk, 0, chunk.Length);
-
-                                    _receivedBytes += chunk.Length;
+                                    File.WriteAllBytes(tempVideoPath, videoBytes);
 
                                     Application.Current.Dispatcher.Invoke(() =>
                                     {
-                                        _currentVideoMessage.Progress = (double)_receivedBytes / _totalBytes * 100;
+                                        Messages.Add(new MessageModel
+                                        {
+                                            GetDateTime = DateTime.Now,
+
+                                            Text = fileName,
+                                            FileName = fileName,
+
+                                            IsVideo = true,
+                                            IsSentByMe = false,
+
+                                            FileBytes = videoBytes,
+
+                                            VideoPath = tempVideoPath,
+
+                                            TransferProgress = 100,
+                                            IsTransferCompleted = true
+                                        });
                                     });
 
-                                    if (_receivedBytes >= _totalBytes)
-                                    {
-                                        string finalPath;
-
-                                        if (_videoStream != null)
-                                        {
-                                            finalPath = Path.Combine(Path.GetTempPath(), _videoFileName);
-                                            File.WriteAllBytes(finalPath, _videoStream.ToArray());
-                                            _videoStream.Dispose();
-                                            _videoStream = null;
-                                        }
-                                        else
-                                        {
-                                            _tempFileStream.Close();
-                                            finalPath = _tempFilePath;
-                                            _tempFileStream = null;
-                                        }
-
-                                        Application.Current.Dispatcher.Invoke(() =>
-                                        {
-                                            _currentVideoMessage.VideoFilePath = finalPath;
-                                            _currentVideoMessage.IsCompleted = true;
-                                            _currentVideoMessage.Progress = 100;
-                                        });
-
-                                        //AddLog(DateTime.Now, "Received", "Video", chunk); 
-
-                                        _isReceivingVideo = false;
-                                        _currentVideoMessage = null;
-                                        _receivedBytes = 0;
-                                    }
+                                    AddLog(DateTime.Now,
+                                           "Received",
+                                           "Video",
+                                           $"{totalSize} bytes");
                                 }
                             }
 
@@ -411,32 +383,7 @@ namespace PeerChat.ViewModel
 
                                 Application.Current.Dispatcher.Invoke(() =>
                                 {
-                                    if (isTyping)
-                                    {
-                                        IsPeerTyping = true;
-
-                                        // restart hide timer
-                                        if (_typingHideTimer == null)
-                                        {
-                                            _typingHideTimer = new DispatcherTimer
-                                            {
-                                                Interval = TimeSpan.FromSeconds(2)
-                                            };
-
-                                            _typingHideTimer.Tick += (s, e) =>
-                                            {
-                                                _typingHideTimer.Stop();
-                                                IsPeerTyping = false;
-                                            };
-                                        }
-
-                                        _typingHideTimer.Stop();
-                                        _typingHideTimer.Start();
-                                    }
-                                    else
-                                    {
-                                        IsPeerTyping = false;
-                                    }
+                                    IsPeerTyping = isTyping;
                                 });
                             }
 
@@ -444,7 +391,7 @@ namespace PeerChat.ViewModel
                             if (type == 0x05)
                             {
                                 HandlePeerDisconnected();
-                                AddLog(DateTime.Now, "Recieved", "Peer Status","null");
+                                AddLog(DateTime.Now, "Recieved", "Peer Status", "null");
                                 return;
                             }
                         });
@@ -470,20 +417,16 @@ namespace PeerChat.ViewModel
                 return;
             }
 
-            if(SelectedVideoPath != null)
-            {
-                await SendVideo(SelectedVideoPath);
-                return;
-            }
         }
 
         private async Task SendTextMessage()
         {
-            if (string.IsNullOrWhiteSpace(OutGoingMessage)) return;
+            if (!IsConnected || _client == null || !_client.Connected)
+                return;
 
             var msg = OutGoingMessage;
 
-            byte[] data = Encoding.UTF8.GetBytes(msg); 
+            byte[] data = Encoding.UTF8.GetBytes(msg);
             await MessageProtocol.SendFrameAsync(_stream, 0x01, data);
             AddLog(DateTime.Now, "Sent", "Text", $"{data.Length} bytes");
 
@@ -495,6 +438,7 @@ namespace PeerChat.ViewModel
             });
 
             OutGoingMessage = string.Empty;
+            await SendTypingStatus(false);
         }
 
         private async Task PickImage()
@@ -516,7 +460,7 @@ namespace PeerChat.ViewModel
                 bitmap.StreamSource = ms;
                 bitmap.CacheOption = BitmapCacheOption.OnLoad;
                 bitmap.EndInit();
-                bitmap.Freeze(); 
+                bitmap.Freeze();
 
                 ImagePreview = bitmap;
             }
@@ -570,123 +514,85 @@ namespace PeerChat.ViewModel
 
             if (dialog.ShowDialog() != true) return;
 
-            //VideoPreviewPath = dialog.FileName;
             SelectedVideoName = Path.GetFileName(dialog.FileName);
             SelectedVideoPath = dialog.FileName;
 
-            //OnPropertyChanged(nameof(VideoPreviewPath));
             OnPropertyChanged(nameof(SelectedVideoName));
             OnPropertyChanged(nameof(SelectedVideoPath));
-
-            await SendVideo(dialog.FileName);
+            await SendVideo();
         }
 
-        private async Task SendVideo(string filePath)
+        private async Task SendVideo()
         {
-            const int CHUNK_SIZE = 64 * 1024;
+            if (string.IsNullOrEmpty(SelectedVideoPath))
+                return;
 
-            string fileName = Path.GetFileName(filePath);
-            byte[] nameBytes = Encoding.UTF8.GetBytes(fileName);
+            FileInfo fileInfo = new FileInfo(SelectedVideoPath);
 
-            long totalSize = new FileInfo(filePath).Length;
-
-            var message = new MessageModel
+            //< 50MB
+            if (fileInfo.Length > 50 * 1024 * 1024)
             {
-                GetDateTime = DateTime.Now,
-                IsVideo = true,
-                Progress = 0,
-                IsCompleted = false,
-                IsSentByMe = true,
-                VideoFilePath = filePath
-            };
-
-            Application.Current.Dispatcher.Invoke(() =>
-            {
-                Messages.Add(message);
-            });
-
-            long sentBytes = 0;
-
-            using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read))
-            {
-                byte[] buffer = new byte[CHUNK_SIZE];
-                int bytesRead;
-                bool isFirstChunk = true;
-
-                while ((bytesRead = await fs.ReadAsync(buffer, 0, buffer.Length)) > 0)
-                {
-                    using (var ms = new MemoryStream())
-                    using (var writer = new BinaryWriter(ms))
-                    {
-                        if (isFirstChunk)
-                        {
-                            byte[] fixedName = new byte[260];
-                            Array.Clear(fixedName, 0, fixedName.Length);
-                            Array.Copy(nameBytes, fixedName, Math.Min(260, nameBytes.Length));
-
-                            writer.Write(fixedName);
-
-                            byte[] sizeBytes = BitConverter.GetBytes(totalSize);
-                            if (BitConverter.IsLittleEndian)
-                                Array.Reverse(sizeBytes);
-
-                            writer.Write(sizeBytes);
-
-                            writer.Write(buffer, 0, bytesRead);
-
-                            isFirstChunk = false;
-                        }
-                        else
-                        {
-                            writer.Write(buffer, 0, bytesRead);
-                        }
-
-                        await MessageProtocol.SendFrameAsync(_stream, 0x03, ms.ToArray());
-                        //AddLog(MyName, "Sent", "Video: ", sizeBytes);
-                    }
-
-                    sentBytes += bytesRead;
-
-                    double progress = (double)sentBytes / totalSize * 100;
-
-                    Application.Current.Dispatcher.Invoke(() =>
-                    {
-                        message.Progress = progress;
-                        OnPropertyChanged(nameof(Messages));
-                    });
-                }
+                MessageBox.Show("Video exceeds 50 MB");
+                return;
             }
 
-            Application.Current.Dispatcher.Invoke(() =>
+            var stream = _client.GetStream();
+
+            FileStream fs = new FileStream(SelectedVideoPath, FileMode.Open, FileAccess.Read);
+            MemoryStream ms = new MemoryStream();
+
+            await fs.CopyToAsync(ms);
+
+            byte[] videoBytes = ms.ToArray();
+
+            byte[] payload = new byte[260 + 8 + videoBytes.Length];
+
+            byte[] nameBytes = Encoding.UTF8.GetBytes(SelectedVideoName);
+
+            Array.Copy(nameBytes, payload, Math.Min(260, nameBytes.Length));
+
+            byte[] sizeBytes =
+                BitConverter.GetBytes(fileInfo.Length);
+
+            if (BitConverter.IsLittleEndian)
+                Array.Reverse(sizeBytes);
+
+            Array.Copy(sizeBytes, 0, payload, 260, 8);
+
+            // video bytes
+            Array.Copy(videoBytes, 0, payload, 268, videoBytes.Length);
+
+            await MessageProtocol.SendFrameAsync(stream, 0x03, payload);
+
+            Messages.Add(new MessageModel
             {
-                message.Progress = 100;
-                message.IsCompleted = true;
+                GetDateTime = DateTime.Now,
+                Text = SelectedVideoName,
+                FileName = SelectedVideoName,
+                IsVideo = true,
+                IsSentByMe = true,
+                FileBytes = videoBytes,
+                VideoPath = SelectedVideoPath,
+                IsTransferCompleted = true,
+                TransferProgress = 100
             });
+            AddLog(DateTime.Now, "Sent", "Video", $"{videoBytes.Length} bytes");
+
         }
 
         private void PlayVideo(string path)
         {
             if (File.Exists(path))
             {
-                Process.Start(new ProcessStartInfo(path) { UseShellExecute = true });
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = path,
+                    UseShellExecute = true
+                });
             }
-        }
+        } 
 
-        private async void HandleTyping()
-        {
-            var now = DateTime.Now;
-
-            if ((now - _lastTypingSent).TotalMilliseconds > 500)
-            {
-                _lastTypingSent = now;
-                await SendTypingStatus(true); // typing
-            }
-
-            _typingStopTimer.Stop();
-            _typingStopTimer.Start();
-        }
-
-        private async Task SendTypingStatus(bool isTyping)
+        public async Task SendTypingStatus(bool isTyping)
         {
             byte[] payload = new byte[1];
             payload[0] = isTyping ? (byte)1 : (byte)0;
@@ -725,9 +631,10 @@ namespace PeerChat.ViewModel
             {
                 Messages.Add(new MessageModel
                 {
+                    GetDateTime = DateTime.Now,
                     Text = "Peer has disconnected",
                     IsSystemMessage = true
-                }); 
+                });
                 PeerStatus = "Offline";
                 IsConnected = false;
             });
@@ -754,11 +661,11 @@ namespace PeerChat.ViewModel
             };
 
             isDark = !isDark;
-        } 
+        }
 
         private void UpdateTitle()
         {
-            Application.Current.MainWindow.Title = $"PeerChat — {_myName} ↔ {_peerIp}({SelectedUserName})";  
+            Application.Current.MainWindow.Title = $"PeerChat — {_myName} ↔ {_peerIp}({SelectedUserName})";
         }
 
         private void AddLog(DateTime date, string direction, string type, string size)
@@ -766,8 +673,8 @@ namespace PeerChat.ViewModel
             Application.Current.Dispatcher.Invoke(() =>
             {
                 DebugLogs.Add(new DebugModel
-                { 
-                    GetDateTime=date,
+                {
+                    GetDateTime = date,
                     Direction = direction,
                     ContentType = type,
                     ContentSize = size

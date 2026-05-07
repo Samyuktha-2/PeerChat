@@ -1,7 +1,10 @@
-﻿using PeerChat.Command;
+﻿using peerchat.viewmodel;
+using PeerChat.Command;
+using PeerChat.Model;
 using PeerChat.Services;
 using PeerChat.View;
 using System;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -9,6 +12,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Input;
 
 namespace PeerChat.ViewModel
@@ -107,28 +111,64 @@ namespace PeerChat.ViewModel
                 OnPropertyChanged(nameof(IsNotHoisting));
             }
         }
-        public bool IsNotHoisting => !IsHosting; 
-         
-        private CancellationTokenSource _cts; 
+        public bool IsNotHoisting => !IsHosting;
+        public bool IsHost
+        {
+            get => _isHost;
+            set
+            {
+                _isHost = value;
+                OnPropertyChanged(nameof(IsHost));
+            }
+        }
+        public bool IsClient
+        {
+            get => _isClient;
+            set
+            {
+                _isClient = value;
+                OnPropertyChanged(nameof(IsClient));
+            }
+        } 
+
+        private CancellationTokenSource _cts;
+        private bool _isHost;
+        private bool _isClient; 
         private readonly MainVM _main;
         private readonly TcpClient _client;
 
         private readonly NetworkService _service = new NetworkService();
 
-        public ICommand HostCommand { get; }
-        public ICommand JoinCommand { get; } 
+
+        public ICommand JoinCommand { get; }
         public ICommand CancelCommand { get; }
 
         public ConnectionWindowVM(MainVM main)
         {
             _main = main;
 
-            HostCommand = new RelayCommand(() => _ = StartHosting());
-            JoinCommand = new RelayCommand(() => _ = StartJoining());
+            JoinCommand = new RelayCommand(() => _ = Join());
             CancelCommand = new RelayCommand(CancelOperation);
 
             IPAddressText = GetLocalIPAddress(); ;
-        } 
+        }
+
+        private async Task Join()
+        {
+            if (IsHost)
+            {
+                await StartHosting();
+            }
+            else if (IsClient)
+            {
+                await StartJoining();
+            }
+            else
+            {
+                StatusMessage = "Select mode to join";
+            }
+        }
+
         private async Task StartHosting()
         {
             if (!ValidateAll()) return;
@@ -149,8 +189,7 @@ namespace PeerChat.ViewModel
 
                 TcpClient client = await _service.StartHostAsync(portNumber, _cts.Token);
 
-                StatusMessage = "Connected";
-                
+                StatusMessage = "Connected"; 
                 _main.CurrentView = new ChatWindowVM(DisplayUserName, IPAddressText, _main, client);
             }
             catch (OperationCanceledException)
@@ -194,7 +233,7 @@ namespace PeerChat.ViewModel
 
                 StatusMessage = "Connected";
 
-                _main.CurrentView = new ChatWindowVM(DisplayUserName,IPAddressText, _main, client);
+                _main.CurrentView = new ChatWindowVM(DisplayUserName, IPAddressText, _main, client);
             }
             catch (Exception ex)
             {
@@ -263,8 +302,10 @@ namespace PeerChat.ViewModel
             var stream = _client.GetStream();
             byte[] data = Encoding.UTF8.GetBytes(DisplayUserName);
 
-            await MessageProtocol.SendFrameAsync(stream, 0x01, data);
+            await MessageProtocol.SendFrameAsync(stream, 0x06, data);
         }
+
+
 
     }
 }
