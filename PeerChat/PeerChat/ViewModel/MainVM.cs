@@ -1,13 +1,12 @@
 ﻿using PeerChat.View;
 using PeerChat.ViewModel;
+using System.Collections.Generic;
 
 namespace peerchat.viewmodel
 {
     public class MainVM : BaseVM
-    {
-        public ConnectionWindowVM ConnectionWindow { get; set; }
-        public ChatWindowVM ChatWindow { get; set; }
-
+    {  
+        private object currentView;
         public object CurrentView
         {
             get => currentView;
@@ -18,12 +17,28 @@ namespace peerchat.viewmodel
             }
         }
 
+        public Stack<object> navigationStack = new Stack<object>();
+
         public MainVM()
         {
-            ConnectionWindow = new ConnectionWindowVM(this);
-
-            CurrentView = new ConnectionWindow();
+           Navigate( new ConnectionWindowVM(this));
+             
         }
-        private object currentView;
+
+        public void Navigate(object vm)
+        {
+            navigationStack.Push(vm);
+            CurrentView = vm;
+        }
+
+        public void GoBack()
+        {
+            if(navigationStack.Count > 1)
+            {
+                navigationStack.Pop();
+                CurrentView = navigationStack.Peek();
+            }
+        }
+        
     }
 }

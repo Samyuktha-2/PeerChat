@@ -36,7 +36,7 @@ namespace PeerChat.Services
                 throw new TimeoutException("Connection timed out (5s)");
             }
 
-            await connectTask; // ensures exception if failed
+            await connectTask;
             return client;
         }
     }

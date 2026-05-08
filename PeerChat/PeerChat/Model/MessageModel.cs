@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 
 namespace PeerChat.Model
 {
@@ -30,7 +31,6 @@ namespace PeerChat.Model
         public bool HasImage => Image != null;
 
         public bool IsVideo { get; set; }
-
         public string VideoPath
         {
             get => _videoPath;
@@ -40,7 +40,6 @@ namespace PeerChat.Model
                 OnPropertyChanged(nameof(VideoPath));
             }
         }
-
         public ImageSource VideoThumbnail
         {
             get => _videoThumbnail;
@@ -50,7 +49,6 @@ namespace PeerChat.Model
                 OnPropertyChanged(nameof(VideoThumbnail));
             }
         }
-
         public bool IsTransferCompleted
         {
             get => _isTransferCompleted;
@@ -60,7 +58,6 @@ namespace PeerChat.Model
                 OnPropertyChanged(nameof(IsTransferCompleted));
             }
         }
-
         public double TransferProgress
         {
             get => _transferProgress;
@@ -70,7 +67,6 @@ namespace PeerChat.Model
                 OnPropertyChanged(nameof(TransferProgress));
             }
         }
-
         public string TransferStatus
         {
             get => _transferStatus;

@@ -28,6 +28,8 @@ namespace PeerChat.ViewModel
         private bool _isValidPort;
         private bool isWaiting;
         private bool isHosting;
+        private bool _isHost;
+        private bool _isClient;
 
         public string DisplayUserName
         {
@@ -65,6 +67,7 @@ namespace PeerChat.ViewModel
                 OnPropertyChanged(nameof(StatusMessage));
             }
         }
+
         public bool IsValidIP
         {
             get => _isValidIP;
@@ -112,6 +115,7 @@ namespace PeerChat.ViewModel
             }
         }
         public bool IsNotHoisting => !IsHosting;
+
         public bool IsHost
         {
             get => _isHost;
@@ -132,8 +136,6 @@ namespace PeerChat.ViewModel
         } 
 
         private CancellationTokenSource _cts;
-        private bool _isHost;
-        private bool _isClient; 
         private readonly MainVM _main;
         private readonly TcpClient _client;
 
@@ -190,7 +192,7 @@ namespace PeerChat.ViewModel
                 TcpClient client = await _service.StartHostAsync(portNumber, _cts.Token);
 
                 StatusMessage = "Connected"; 
-                _main.CurrentView = new ChatWindowVM(DisplayUserName, IPAddressText, _main, client);
+                _main.Navigate( new ChatWindowVM(DisplayUserName, IPAddressText, _main, client));
             }
             catch (OperationCanceledException)
             {
@@ -233,7 +235,7 @@ namespace PeerChat.ViewModel
 
                 StatusMessage = "Connected";
 
-                _main.CurrentView = new ChatWindowVM(DisplayUserName, IPAddressText, _main, client);
+                _main.Navigate( new ChatWindowVM(DisplayUserName, IPAddressText, _main, client));
             }
             catch (Exception ex)
             {
@@ -256,10 +258,7 @@ namespace PeerChat.ViewModel
 
         private string GetLocalIPAddress()
         {
-            return Dns.GetHostEntry(Dns.GetHostName())
-                      .AddressList
-                      .FirstOrDefault(ip => ip.AddressFamily == AddressFamily.InterNetwork)?
-                      .ToString();
+            return Dns.GetHostEntry(Dns.GetHostName()).AddressList.FirstOrDefault(ip => ip.AddressFamily == AddressFamily.InterNetwork)?.ToString();
         }
 
         private bool ValidateAll()

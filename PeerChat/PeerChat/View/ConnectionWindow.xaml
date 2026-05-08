@@ -10,13 +10,11 @@
              d:DesignWidth="800">
     <UserControl.Resources>
         <helpers:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
-        
-    </UserControl.Resources>
-    <!-- Center container -->
+    </UserControl.Resources> 
+    
     <Grid HorizontalAlignment="Center"
           VerticalAlignment="Center">
-
-        <!-- Card -->
+ 
         <Border Width="380"
                 Height="Auto"
                 Padding="30"
@@ -30,8 +28,6 @@
             </Border.Effect>
 
             <StackPanel>
-
-                <!-- Avatar -->
                 <Grid HorizontalAlignment="Center"
                       Margin="0 0 0 15">
                     <Border Width="70"
@@ -44,7 +40,7 @@
                                    VerticalAlignment="Center" />
                     </Border>
                 </Grid>
- 
+                
                 <TextBlock Text="Peer Chat"
                            FontSize="22"
                            FontWeight="SemiBold"
@@ -60,7 +56,7 @@
 
                     <Border CornerRadius="10"
                             Background="{DynamicResource SurfaceBrush}">
-                        <TextBox Text="{Binding ConnectionWindow.DisplayUserName, UpdateSourceTrigger=PropertyChanged}"
+                        <TextBox Text="{Binding DisplayUserName, UpdateSourceTrigger=PropertyChanged}"
                                  BorderThickness="0"
                                  Background="Transparent"
                                  CaretBrush="{DynamicResource TextPrimaryBrush}"
@@ -78,7 +74,7 @@
 
                     <Border CornerRadius="10"
                             Background="{DynamicResource SurfaceBrush}">
-                        <TextBox Text="{Binding ConnectionWindow.IPAddressText, UpdateSourceTrigger=PropertyChanged}"
+                        <TextBox Text="{Binding IPAddressText, UpdateSourceTrigger=PropertyChanged}"
                                  BorderThickness="0"
                                  Background="Transparent"
                                  Padding="10"
@@ -88,7 +84,6 @@
                     </Border>
                 </StackPanel>
 
-                <!-- Port -->
                 <StackPanel Margin="0 8">
                     <TextBlock Text="Port"
                                FontSize="12"
@@ -97,7 +92,7 @@
  
                         <Border CornerRadius="10"
                                 Background="{DynamicResource SurfaceBrush}">
-                            <TextBox Text="{Binding ConnectionWindow.Port, UpdateSourceTrigger=PropertyChanged}"
+                            <TextBox Text="{Binding Port, UpdateSourceTrigger=PropertyChanged}"
                                      BorderThickness="0"
                                      Background="Transparent"
                                      Padding="10"
@@ -115,17 +110,17 @@
                                Foreground="{DynamicResource TextSecondaryBrush}" />
                  
                     <RadioButton Content="Host"
-                                 IsChecked="{Binding ConnectionWindow.IsHost}"
+                                 IsChecked="{Binding IsHost}"
                                  Margin="30 1 0 3"
                                  GroupName="Mode" />
                     <RadioButton Content="Client"
-                                 IsChecked="{Binding ConnectionWindow.IsClient}" 
+                                 IsChecked="{Binding IsClient}" 
                                  Margin="30 1 0 3" 
                                  GroupName="Mode"/>
                     
                 </StackPanel>
 
-                <TextBlock Text="{Binding ConnectionWindow.StatusMessage}"
+                <TextBlock Text="{Binding StatusMessage}"
                            Foreground="{DynamicResource TextPrimaryBrush}"
                            FontSize="12"
                            Margin="5"
@@ -134,15 +129,13 @@
                 <ProgressBar Height="6"
                              Margin="0 10 0 0"
                              IsIndeterminate="True"
-                             Visibility="{Binding ConnectionWindow.IsWaiting, Converter={StaticResource BoolToVisibilityConverter}}" />
+                             Visibility="{Binding IsWaiting, Converter={StaticResource BoolToVisibilityConverter}}" />
 
-                <!-- Buttons -->
                 <StackPanel Margin="0 20 0 0"  Orientation="Horizontal"
                             HorizontalAlignment="Center">
                      
-                        
                         <Button Content="Connect"
-                                Command="{Binding ConnectionWindow.JoinCommand}"
+                                Command="{Binding JoinCommand}"
                                 Width="110"
                                 Height="35"
                                 FontSize="18"
@@ -165,7 +158,7 @@
                         </Button>
 
                         <Button Content="Disconnect"
-                                Command="{Binding ConnectionWindow.CancelCommand}"
+                                Command="{Binding CancelCommand}"
                                 Width="110"
                                 Height="35"
                                 FontSize="18"
@@ -186,7 +179,6 @@
                             </Button.Template>
                         </Button>
                     </StackPanel> 
-                
             </StackPanel>
         </Border>
     </Grid>
