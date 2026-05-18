@@ -9,7 +9,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Net.Sockets;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
@@ -27,7 +26,7 @@ namespace PeerChat.ViewModel
         private TcpClient _client;
         private string _selectedUserName;
         private readonly MainVM _main;
-        private readonly NetworkStream _stream; 
+        private readonly NetworkStream _stream;
         private string _peerName;
 
         private string _outGoingMessage;
@@ -45,7 +44,7 @@ namespace PeerChat.ViewModel
         private MessageModel _currentVideoMessage;
         private bool _isReceivingVideo;
         private bool _isPeerTyping;
-         
+
         private bool _isConnected = true;
         private bool _isSendingMessage;
         private string _peerStatus = "Online";
@@ -212,18 +211,18 @@ namespace PeerChat.ViewModel
            });
 
             ThemeCommand = new RelayCommand(ChangeTheme);
-            LogoutCommand=new RelayCommand(()=>_= HandleLocalClosingAsync());
+            LogoutCommand = new RelayCommand(() => _ = HandleLocalClosingAsync());
         }
 
         private async Task SendMyName()
         {
             byte[] data = Encoding.UTF8.GetBytes(MyName);
-            await MessageProtocol.SendFrameAsync(_stream,0x06, data);
+            MessageProtocol.SendFrameAsync(_stream, 0x06, data);
         }
 
         private void StartRecieveLoop()
         {
-            Task.Run(async () =>
+            Task.Run(() =>
             {
                 try
                 {
@@ -231,9 +230,9 @@ namespace PeerChat.ViewModel
 
                     while (true)
                     {
-                        var (type, payload) = await MessageProtocol.ReceiveFrameAsync(stream);
+                        var (type, payload) = MessageProtocol.ReceiveFrameAsync(stream);
 
-                        
+
 
                         Application.Current.Dispatcher.Invoke(() =>
                         {
@@ -244,7 +243,7 @@ namespace PeerChat.ViewModel
                                 SelectedUserName = text;
                                 UpdateTitle();
                                 return;
-                            } 
+                            }
 
                             if (type == 0x01) //text
                             {
@@ -291,7 +290,7 @@ namespace PeerChat.ViewModel
 
                             if (type == 0x03)
                             {
-                                _ = HandleVideoFrameAsync(payload); 
+                                _ = HandleVideoFrameAsync(payload);
                             }
 
                             //typing status
@@ -355,7 +354,7 @@ namespace PeerChat.ViewModel
             var msg = OutGoingMessage;
 
             byte[] data = Encoding.UTF8.GetBytes(msg);
-            await MessageProtocol.SendFrameAsync(_stream, 0x01, data);
+            MessageProtocol.SendFrameAsync(_stream, 0x01, data);
             AddLog(DateTime.Now, "Sent", "Text", $"{data.Length} bytes");
 
             Messages.Add(new MessageModel
@@ -414,7 +413,7 @@ namespace PeerChat.ViewModel
                 writer.Write(imageBytes);
 
                 byte[] payload = ms.ToArray();
-                await MessageProtocol.SendFrameAsync(_stream, 0x02, payload);
+                MessageProtocol.SendFrameAsync(_stream, 0x02, payload);
 
                 AddLog(DateTime.Now, "Sent", "Image", $"{payload.Length} bytes");
             }
@@ -436,7 +435,7 @@ namespace PeerChat.ViewModel
                     FileName = imageName,
                     IsSentByMe = true
                 });
-            } 
+            }
             ImagePreview = null;
             SelectedImageByte = null;
             SelectedImageName = null;
@@ -492,15 +491,15 @@ namespace PeerChat.ViewModel
                     if (chunkNumber == 1)
                     {
                         payload = new byte[VideoFileNameHeaderSize + VideoSizeHeaderSize + bytesRead];  //video header size = 8, video filen name header size = 260
-                        
+
                         //filename header
                         var nameBytes = Encoding.UTF8.GetBytes(fileInfo.Name);
                         var length = Math.Min(nameBytes.Length, VideoFileNameHeaderSize);
                         Buffer.BlockCopy(nameBytes, 0, payload, 0, length); //copying filename into payload
-                         
+
                         var sizeBytes = BitConverter.GetBytes(totalSize);
                         if (BitConverter.IsLittleEndian)  //big-endian to ensure sender interprets size crtly
-                            Array.Reverse(sizeBytes); 
+                            Array.Reverse(sizeBytes);
                         Buffer.BlockCopy(sizeBytes, 0, payload, VideoFileNameHeaderSize, VideoSizeHeaderSize);  //copying filesize into payload
 
                         Buffer.BlockCopy(buffer, 0, payload, VideoFileNameHeaderSize + VideoSizeHeaderSize, bytesRead);  //copying fist chunck vid size into payload
@@ -511,7 +510,7 @@ namespace PeerChat.ViewModel
                         Buffer.BlockCopy(buffer, 0, payload, 0, bytesRead);
                     }
 
-                    await MessageProtocol.SendFrameAsync(_stream, 0x03, payload);
+                    MessageProtocol.SendFrameAsync(_stream, 0x03, payload);
 
                     bytesSent += bytesRead;
                     UpdateVideoProgress(message, bytesSent, totalSize);
@@ -608,7 +607,7 @@ namespace PeerChat.ViewModel
                     completedMessage.TransferStatus = $"{_videoTotalSize}/{_videoTotalSize}";
                 });
 
-                AddLog(DateTime.Now, "Recieved", "Video",$"{_videoTotalSize} byte");
+                AddLog(DateTime.Now, "Recieved", "Video", $"{_videoTotalSize} byte");
                 _currentVideoMessage = null;
                 _tempFilePath = null;
                 _videoTotalSize = 0;
@@ -639,7 +638,7 @@ namespace PeerChat.ViewModel
                 return await thumbnailTask;
             }
             catch
-            { 
+            {
                 return null;
             }
         }
@@ -671,7 +670,7 @@ namespace PeerChat.ViewModel
                     dc.DrawVideo(player, new Rect(0, 0, width, height));
                 }
 
-                RenderTargetBitmap renderBitmap = new RenderTargetBitmap( width, height, 96, 96, PixelFormats.Pbgra32);
+                RenderTargetBitmap renderBitmap = new RenderTargetBitmap(width, height, 96, 96, PixelFormats.Pbgra32);
 
                 renderBitmap.Render(visual);
 
@@ -680,8 +679,8 @@ namespace PeerChat.ViewModel
                 using (MemoryStream ms = new MemoryStream())
                 {
                     PngBitmapEncoder encoder = new PngBitmapEncoder();
-                    encoder.Frames.Add(BitmapFrame.Create(renderBitmap)); 
-                    encoder.Save(ms); 
+                    encoder.Frames.Add(BitmapFrame.Create(renderBitmap));
+                    encoder.Save(ms);
                     ms.Position = 0;
 
                     image.BeginInit();
@@ -700,57 +699,9 @@ namespace PeerChat.ViewModel
                 return null;
             }
         }
-
-        //private async Task<BitmapSource> GenerateVideoThumbnailOnUiAsync(string videoPath)
-        //{
-        //    var player = new MediaPlayer { ScrubbingEnabled = true }; //scrubbing - to capture thumbnail 
-        //    var opened = new TaskCompletionSource<bool>();
-
-        //    EventHandler openedHandler = null;
-        //    EventHandler<ExceptionEventArgs> failedHandler = null;
-
-        //    openedHandler = (s, e) => opened.TrySetResult(true);
-        //    failedHandler = (s, e) => opened.TrySetException(e.ErrorException);
-
-        //    player.MediaOpened += openedHandler;
-        //    player.MediaFailed += failedHandler;
-
-        //    try
-        //    {
-        //        player.Open(new Uri(videoPath, UriKind.Absolute));
-
-        //        var completed = await Task.WhenAny(opened.Task, Task.Delay(5000));
-        //        if (completed != opened.Task || !opened.Task.Result)
-        //            return null;
-
-        //        player.Position = TimeSpan.FromMilliseconds(250);
-        //        await Task.Delay(250);
-
-        //        var width = player.NaturalVideoWidth > 0 ? player.NaturalVideoWidth : 250;
-        //        var height = player.NaturalVideoHeight > 0 ? player.NaturalVideoHeight : 160;
-
-        //        var drawingVisual = new DrawingVisual();
-        //        using (var drawingContext = drawingVisual.RenderOpen())
-        //        {
-        //            drawingContext.DrawVideo(player, new Rect(0, 0, width, height));
-        //        }
-
-        //        var bitmap = new RenderTargetBitmap(width, height, 96, 96, PixelFormats.Pbgra32);
-        //        bitmap.Render(drawingVisual);
-        //        bitmap.Freeze();
-
-        //        return bitmap;
-        //    }
-        //    finally
-        //    {
-        //        player.MediaOpened -= openedHandler;
-        //        player.MediaFailed -= failedHandler;
-        //        player.Close();
-        //    }
-        //}
-
+        
         private void PlayVideo(MessageModel msg)
-        { 
+        {
             string path;
 
             if (!string.IsNullOrEmpty(msg.VideoPath))
@@ -778,7 +729,7 @@ namespace PeerChat.ViewModel
             var fileName = Encoding.UTF8.GetString(payload, offset, length);
             return string.IsNullOrWhiteSpace(fileName) ? "received-video" : fileName;
         }
-          
+
         private static long ReadInt64BigEndian(byte[] payload, int offset)
         {
             var sizeBytes = new byte[VideoSizeHeaderSize];
@@ -795,7 +746,7 @@ namespace PeerChat.ViewModel
             byte[] payload = new byte[1];
             payload[0] = isTyping ? (byte)1 : (byte)0;
 
-            await MessageProtocol.SendFrameAsync(_stream,0x04, payload);
+            MessageProtocol.SendFrameAsync(_stream, 0x04, payload);
         }
 
         public async Task HandleLocalClosingAsync()
@@ -804,11 +755,11 @@ namespace PeerChat.ViewModel
 
             try
             {
-                await MessageProtocol.SendFrameAsync(_stream, 0x05, Array.Empty<byte>());
+                MessageProtocol.SendFrameAsync(_stream, 0x05, Array.Empty<byte>());
                 _main.GoBack();
             }
             catch { }
-            
+
             try
             {
                 _stream?.Close();
@@ -817,7 +768,7 @@ namespace PeerChat.ViewModel
             catch { }
 
             IsConnected = false;
-        } 
+        }
 
         private void HandlePeerDisconnected()
         {
@@ -876,4 +827,4 @@ namespace PeerChat.ViewModel
             });
         }
     }
-} 
+}

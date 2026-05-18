@@ -301,7 +301,7 @@ namespace PeerChat.ViewModel
             var stream = _client.GetStream();
             byte[] data = Encoding.UTF8.GetBytes(DisplayUserName);
 
-            await MessageProtocol.SendFrameAsync(stream, 0x06, data);
+            MessageProtocol.SendFrameAsync(stream, 0x06, data);
         }
 
 
